@@ -12,7 +12,7 @@ hadronic final state.
 The section below will get you started with a setup for running the fast simulation (Delphes).  Once you have that, you can
 make a simple reduced TTree with the root c++ code here and then analyze it with the jupyter notebook.  Note that you don't
 have to do all of the below in the EIC virtual machine you use to run the full simulation.  You should be able to install
-Pythia and Delphes directly on your laptop.  It worked for me in my Mac.
+Pythia and Delphes directly on your laptop.  It worked for me on my Mac.
 
 
 
