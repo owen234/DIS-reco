@@ -12,6 +12,11 @@ void ptep_to_xyze( float pt, double eta, double phi, double m,
 void minitree_maker::Loop( bool verbose, int maxEvt )
 {
 
+   //float maxEta = 2.4 ;
+   float maxEta = 4.0 ;
+
+   bool includeExtraTTreeVars = true ;
+
    if (fChain == 0) return;
 
    TFile* tf_out = new TFile("mini-tree.root", "recreate") ;
@@ -23,11 +28,12 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float gene_px ;
    float gene_py ;
    float gene_pz ;
+
+   float gen_e_e ;
    float gen_e_pt ;
    float gen_e_eta ;
    float gen_e_phi ;
    float gen_e_theta ;
-   float gen_e_e ;
 
    float gen_Q2 ;
    float gen_y ;
@@ -74,6 +80,11 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float Q2_da ;
    float x_da ;
 
+   float HFS_pt ;
+   float HFS_eta ;
+   float HFS_phi ;
+   float HFS_theta ;
+
 
 
    tt_out -> Branch( "Q2_e", &Q2_e, "Q2_e/F" ) ; // ***
@@ -113,6 +124,18 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    tt_out -> Branch( "HFS_E", &HFS_E, "HFS_E/F" ) ; // +++
 
+   if ( includeExtraTTreeVars ) {
+      tt_out -> Branch( "gen_e_e", &gen_e_e, "gen_e_e/F" ) ;
+      tt_out -> Branch( "gen_e_pt", &gen_e_pt, "gen_e_pt/F" ) ;
+      tt_out -> Branch( "gen_e_eta", &gen_e_eta, "gen_e_eta/F" ) ;
+      tt_out -> Branch( "gen_e_phi", &gen_e_phi, "gen_e_phi/F" ) ;
+      tt_out -> Branch( "gen_e_theta", &gen_e_theta, "gen_e_theta/F" ) ;
+      tt_out -> Branch( "HFS_pt", &HFS_pt, "HFS_pt/F" ) ;
+      tt_out -> Branch( "HFS_eta", &HFS_eta, "HFS_eta/F" ) ;
+      tt_out -> Branch( "HFS_phi", &HFS_phi, "HFS_phi/F" ) ;
+      tt_out -> Branch( "HFS_theta", &HFS_theta, "HFS_theta/F" ) ;
+      ///////tt_out -> Branch( "", &, "/F" ) ;
+   }
 
 
    gDirectory -> Delete( "h*" ) ;
@@ -261,6 +284,9 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
          if ( verbose ) printf( " %3d, trk %3d : pid = %5d  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n",
            ei, i, EFlowTrack_PID[i], EFlowTrack_PT[i], px, py, pz, e ) ;
 
+         //if ( EFlowTrack_Eta[i] > maxEta ) continue ;
+         if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
+
          HFS_px += px ;
          HFS_py += py ;
          HFS_pz += pz ;
@@ -279,6 +305,9 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
          if ( verbose ) printf( " %3d, trk %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n",
            ei, i, EFlowPhoton_ET[i], px, py, pz, e ) ;
+
+         //if ( EFlowPhoton_Eta[i] > maxEta ) continue ;
+         if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
 
          HFS_px += px ;
          HFS_py += py ;
@@ -299,6 +328,9 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
          if ( verbose ) printf( " %3d, trk %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n",
            ei, i, EFlowNeutralHadron_ET[i], px, py, pz, e ) ;
 
+         //if ( EFlowNeutralHadron_Eta[i] > maxEta ) continue ;
+         if ( fabs(EFlowNeutralHadron_Eta[i]) > maxEta ) continue ;
+
          HFS_px += px ;
          HFS_py += py ;
          HFS_pz += pz ;
@@ -309,6 +341,13 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       if ( verbose ) printf( " %3d : sums :  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", ei, HFS_px, HFS_py, HFS_pz, HFS_E ) ;
 
       float ef_sum_pt = sqrt( HFS_px * HFS_px + HFS_py * HFS_py ) ;
+
+      if ( includeExtraTTreeVars ) {
+         HFS_pt = ef_sum_pt ;
+         HFS_theta = atan2( HFS_pt, HFS_pz ) ;
+         HFS_phi = atan2( HFS_py, HFS_px ) ;
+         HFS_eta = -1. * log( tan( HFS_theta/2. ) ) ;
+      }
 
 
 
