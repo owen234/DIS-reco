@@ -1,6 +1,18 @@
 # DIS-reco
 
-This will get you started with a setup for running the fast simulation (Delphes).
+
+
+
+## What's in here?
+
+The stuff in this repository is for looking at the reconstruction of Q2, x, and y, using both the scattered electron and the inclusive
+hadronic final state.
+
+
+The section below will get you started with a setup for running the fast simulation (Delphes).  Once you have that, you can
+make a simple reduced TTree with the root c++ code here and then analyze it with the jupyter notebook.
+
+
 
 **1. Install Pythia**
 
@@ -80,11 +92,6 @@ That will produce the file out.root, which contains a big TTree with the gen-lev
 of the detector reconstruction.
 
 
-
-## What's in here?
-
-The stuff in this repository is for looking at the reconstruction of Q2, x, and y, using both the scattered electron and the inclusive
-hadronic final state.
 
 
 
