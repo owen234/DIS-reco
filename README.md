@@ -66,7 +66,7 @@ make HAS_PYTHIA8=true | & tee build.log
 
 **3. Check out the ATHENA / EIC implementation in Delphes**
 
-Here's the documentation :  https://github.com/eic/delphes_EIC/blob/master/docs/index.rst
+Here's the documentation :  https://delphes-eic.readthedocs.io/en/latest/
 
 and here's the github repository :  https://github.com/eic/delphes_EIC
 
