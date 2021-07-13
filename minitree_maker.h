@@ -1,8 +1,8 @@
 //////////////////////////////////////////////////////////
 // This class has been automatically generated on
-// Sun Jul 11 15:02:15 2021 by ROOT version 6.24/01
+// Mon Jul 12 16:30:57 2021 by ROOT version 6.24/01
 // from TTree Delphes/Analysis tree
-// found on file: dis-nc-100kevts-q2min-200.root
+// found on file: /Volumes/Ext_2020_08/dis-reco-work/work-2021-07-12/new-tcl/delphes-q2min-200-100k-001.root
 //////////////////////////////////////////////////////////
 
 #ifndef minitree_maker_h
@@ -23,21 +23,22 @@ public :
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
    static constexpr Int_t kMaxEvent = 1;
-   static constexpr Int_t kMaxParticle = 302;
-   static constexpr Int_t kMaxTrack = 52;
-   static constexpr Int_t kMaxTower = 68;
-   static constexpr Int_t kMaxEFlowTrack = 45;
-   static constexpr Int_t kMaxEFlowPhoton = 46;
-   static constexpr Int_t kMaxEFlowNeutralHadron = 13;
-   static constexpr Int_t kMaxmRICHTrack = 3;
-   static constexpr Int_t kMaxbarrelDIRCTrack = 17;
-   static constexpr Int_t kMaxdualRICHagTrack = 33;
-   static constexpr Int_t kMaxdualRICHcfTrack = 33;
-   static constexpr Int_t kMaxGenJet = 7;
+   static constexpr Int_t kMaxParticle = 500;
+   static constexpr Int_t kMaxBeamSpot = 1;
+   static constexpr Int_t kMaxTrack = 80;
+   static constexpr Int_t kMaxTower = 200;
+   static constexpr Int_t kMaxEFlowTrack = 80;
+   static constexpr Int_t kMaxEFlowPhoton = 100;
+   static constexpr Int_t kMaxEFlowNeutralHadron = 30;
+   static constexpr Int_t kMaxmRICHTrack = 20;
+   static constexpr Int_t kMaxbarrelDIRCTrack = 40;
+   static constexpr Int_t kMaxdualRICHagTrack = 40;
+   static constexpr Int_t kMaxdualRICHcfTrack = 80;
+   static constexpr Int_t kMaxGenJet = 20;
    static constexpr Int_t kMaxGenMissingET = 1;
-   static constexpr Int_t kMaxJet = 4;
-   static constexpr Int_t kMaxElectron = 4;
-   static constexpr Int_t kMaxPhoton = 31;
+   static constexpr Int_t kMaxJet = 20;
+   static constexpr Int_t kMaxElectron = 20;
+   static constexpr Int_t kMaxPhoton = 90;
    static constexpr Int_t kMaxMissingET = 1;
    static constexpr Int_t kMaxScalarHT = 1;
 
@@ -90,6 +91,32 @@ public :
    Float_t         Particle_Y[kMaxParticle];   //[Particle_]
    Float_t         Particle_Z[kMaxParticle];   //[Particle_]
    Int_t           Particle_size;
+   Int_t           BeamSpot_;
+   UInt_t          BeamSpot_fUniqueID[kMaxBeamSpot];   //[BeamSpot_]
+   UInt_t          BeamSpot_fBits[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_PID[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_Status[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_IsPU[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_M1[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_M2[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_D1[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_D2[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_Charge[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Mass[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_E[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Px[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Py[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Pz[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_P[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_PT[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Eta[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Phi[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Rapidity[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_T[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_X[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Y[kMaxBeamSpot];   //[BeamSpot_]
+   Float_t         BeamSpot_Z[kMaxBeamSpot];   //[BeamSpot_]
+   Int_t           BeamSpot_size;
    Int_t           Track_;
    UInt_t          Track_fUniqueID[kMaxTrack];   //[Track_]
    UInt_t          Track_fBits[kMaxTrack];   //[Track_]
@@ -640,6 +667,32 @@ public :
    TBranch        *b_Particle_Y;   //!
    TBranch        *b_Particle_Z;   //!
    TBranch        *b_Particle_size;   //!
+   TBranch        *b_BeamSpot_;   //!
+   TBranch        *b_BeamSpot_fUniqueID;   //!
+   TBranch        *b_BeamSpot_fBits;   //!
+   TBranch        *b_BeamSpot_PID;   //!
+   TBranch        *b_BeamSpot_Status;   //!
+   TBranch        *b_BeamSpot_IsPU;   //!
+   TBranch        *b_BeamSpot_M1;   //!
+   TBranch        *b_BeamSpot_M2;   //!
+   TBranch        *b_BeamSpot_D1;   //!
+   TBranch        *b_BeamSpot_D2;   //!
+   TBranch        *b_BeamSpot_Charge;   //!
+   TBranch        *b_BeamSpot_Mass;   //!
+   TBranch        *b_BeamSpot_E;   //!
+   TBranch        *b_BeamSpot_Px;   //!
+   TBranch        *b_BeamSpot_Py;   //!
+   TBranch        *b_BeamSpot_Pz;   //!
+   TBranch        *b_BeamSpot_P;   //!
+   TBranch        *b_BeamSpot_PT;   //!
+   TBranch        *b_BeamSpot_Eta;   //!
+   TBranch        *b_BeamSpot_Phi;   //!
+   TBranch        *b_BeamSpot_Rapidity;   //!
+   TBranch        *b_BeamSpot_T;   //!
+   TBranch        *b_BeamSpot_X;   //!
+   TBranch        *b_BeamSpot_Y;   //!
+   TBranch        *b_BeamSpot_Z;   //!
+   TBranch        *b_BeamSpot_size;   //!
    TBranch        *b_Track_;   //!
    TBranch        *b_Track_fUniqueID;   //!
    TBranch        *b_Track_fBits;   //!
@@ -1260,6 +1313,32 @@ void minitree_maker::Init(TTree *tree)
    fChain->SetBranchAddress("Particle.Y", Particle_Y, &b_Particle_Y);
    fChain->SetBranchAddress("Particle.Z", Particle_Z, &b_Particle_Z);
    fChain->SetBranchAddress("Particle_size", &Particle_size, &b_Particle_size);
+   fChain->SetBranchAddress("BeamSpot", &BeamSpot_, &b_BeamSpot_);
+   fChain->SetBranchAddress("BeamSpot.fUniqueID", BeamSpot_fUniqueID, &b_BeamSpot_fUniqueID);
+   fChain->SetBranchAddress("BeamSpot.fBits", BeamSpot_fBits, &b_BeamSpot_fBits);
+   fChain->SetBranchAddress("BeamSpot.PID", BeamSpot_PID, &b_BeamSpot_PID);
+   fChain->SetBranchAddress("BeamSpot.Status", BeamSpot_Status, &b_BeamSpot_Status);
+   fChain->SetBranchAddress("BeamSpot.IsPU", BeamSpot_IsPU, &b_BeamSpot_IsPU);
+   fChain->SetBranchAddress("BeamSpot.M1", BeamSpot_M1, &b_BeamSpot_M1);
+   fChain->SetBranchAddress("BeamSpot.M2", BeamSpot_M2, &b_BeamSpot_M2);
+   fChain->SetBranchAddress("BeamSpot.D1", BeamSpot_D1, &b_BeamSpot_D1);
+   fChain->SetBranchAddress("BeamSpot.D2", BeamSpot_D2, &b_BeamSpot_D2);
+   fChain->SetBranchAddress("BeamSpot.Charge", BeamSpot_Charge, &b_BeamSpot_Charge);
+   fChain->SetBranchAddress("BeamSpot.Mass", BeamSpot_Mass, &b_BeamSpot_Mass);
+   fChain->SetBranchAddress("BeamSpot.E", BeamSpot_E, &b_BeamSpot_E);
+   fChain->SetBranchAddress("BeamSpot.Px", BeamSpot_Px, &b_BeamSpot_Px);
+   fChain->SetBranchAddress("BeamSpot.Py", BeamSpot_Py, &b_BeamSpot_Py);
+   fChain->SetBranchAddress("BeamSpot.Pz", BeamSpot_Pz, &b_BeamSpot_Pz);
+   fChain->SetBranchAddress("BeamSpot.P", BeamSpot_P, &b_BeamSpot_P);
+   fChain->SetBranchAddress("BeamSpot.PT", BeamSpot_PT, &b_BeamSpot_PT);
+   fChain->SetBranchAddress("BeamSpot.Eta", BeamSpot_Eta, &b_BeamSpot_Eta);
+   fChain->SetBranchAddress("BeamSpot.Phi", BeamSpot_Phi, &b_BeamSpot_Phi);
+   fChain->SetBranchAddress("BeamSpot.Rapidity", BeamSpot_Rapidity, &b_BeamSpot_Rapidity);
+   fChain->SetBranchAddress("BeamSpot.T", BeamSpot_T, &b_BeamSpot_T);
+   fChain->SetBranchAddress("BeamSpot.X", BeamSpot_X, &b_BeamSpot_X);
+   fChain->SetBranchAddress("BeamSpot.Y", BeamSpot_Y, &b_BeamSpot_Y);
+   fChain->SetBranchAddress("BeamSpot.Z", BeamSpot_Z, &b_BeamSpot_Z);
+   fChain->SetBranchAddress("BeamSpot_size", &BeamSpot_size, &b_BeamSpot_size);
    fChain->SetBranchAddress("Track", &Track_, &b_Track_);
    fChain->SetBranchAddress("Track.fUniqueID", Track_fUniqueID, &b_Track_fUniqueID);
    fChain->SetBranchAddress("Track.fBits", Track_fBits, &b_Track_fBits);
