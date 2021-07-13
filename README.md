@@ -81,5 +81,12 @@ of the detector reconstruction.
 
 
 
+## What's in here?
+
+The stuff in this repository is for looking at the reconstruction of Q2, x, and y, using both the scattered electron and the inclusive
+hadronic final state.
+
+
+
 
 
