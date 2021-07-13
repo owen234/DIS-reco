@@ -32,3 +32,54 @@ make HAS_PYTHIA8=true
 ```
 
 
+**2. Download and build Delphes**
+
+Here's the link:  https://cp3.irmp.ucl.ac.be/projects/delphes  (click on Download for the tar file)
+
+and here's what I did
+
+```
+mkdir delphes
+cd delphes
+
+<download tar file into this dir>
+
+tar -xvf Delphes-3.5.0.tar.gz
+cd Delphes-3.5.0
+make HAS_PYTHIA8=true | & tee build.log
+
+```
+
+**3. Check out the ATHENA / EIC implementation in Delphes**
+
+Here's the documentation :  https://github.com/eic/delphes_EIC/blob/master/docs/index.rst
+
+and here's the github repository :  https://github.com/eic/delphes_EIC
+
+```
+cd <your delphes directory, the one below Delphes-3.5.0 where Delphes-3.5.0.tar.gz is>
+
+git clone https://github.com/eic/delphes_EIC.git
+
+```
+
+
+
+**4.  Try running Pythia + Delphes**
+
+```
+cd <your delphes directory, the one below Delphes-3.5.0 where Delphes-3.5.0.tar.gz is>
+
+cd Delphes-3.5.0
+
+./DelphesPythia8 ../delphes_EIC/delphes_card_allsilicon_3T.tcl ../delphes_EIC/pythia8cards/NC_DIS.cmnd out.root
+
+```
+
+That will produce the file out.root, which contains a big TTree with the gen-level particles and the fast simulation
+of the detector reconstruction.
+
+
+
+
+
