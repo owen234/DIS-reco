@@ -12,8 +12,27 @@ void ptep_to_xyze( float pt, double eta, double phi, double m,
 void minitree_maker::Loop( bool verbose, int maxEvt )
 {
 
+   //bool useJets = true ;
+   bool useJets = false ;
+
    //float maxEta = 2.4 ;
+   //float maxEta = 2.7 ;
    float maxEta = 4.0 ;
+   //float maxEta = 3.26 ;
+
+   float minTrkPt = 0.30 ; //--- YR says 150-400 MeV
+   float minPhoE = 0.10 ; //--- YR says 50 MeV, use 100 MeV
+   float minNHE = 0.50 ; //--- YR says 500 MeV
+
+   //float minTrkPt = 0.50 ;
+   //float minPhoE = 0.10 ;
+   //float minNHE = 0.50 ;
+
+   //float minTrkPt = 0.50 ;
+   //float minPhoE = 0.20 ;
+   //float minNHE = 0.80 ;
+
+
 
    bool includeExtraTTreeVars = true ;
 
@@ -85,6 +104,16 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float HFS_phi ;
    float HFS_theta ;
 
+   float gen_HFS_px ;
+   float gen_HFS_py ;
+   float gen_HFS_pz ;
+   float gen_HFS_e ;
+
+   float gen_HFS_pt ;
+   float gen_HFS_eta ;
+   float gen_HFS_phi ;
+   float gen_HFS_theta ;
+
 
 
    tt_out -> Branch( "Q2_e", &Q2_e, "Q2_e/F" ) ; // ***
@@ -128,13 +157,21 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       tt_out -> Branch( "gen_e_e", &gen_e_e, "gen_e_e/F" ) ;
       tt_out -> Branch( "gen_e_pt", &gen_e_pt, "gen_e_pt/F" ) ;
       tt_out -> Branch( "gen_e_eta", &gen_e_eta, "gen_e_eta/F" ) ;
+      tt_out -> Branch( "rec_e_eta", &rec_e_eta, "rec_e_eta/F" ) ;
       tt_out -> Branch( "gen_e_phi", &gen_e_phi, "gen_e_phi/F" ) ;
       tt_out -> Branch( "gen_e_theta", &gen_e_theta, "gen_e_theta/F" ) ;
       tt_out -> Branch( "HFS_pt", &HFS_pt, "HFS_pt/F" ) ;
       tt_out -> Branch( "HFS_eta", &HFS_eta, "HFS_eta/F" ) ;
       tt_out -> Branch( "HFS_phi", &HFS_phi, "HFS_phi/F" ) ;
       tt_out -> Branch( "HFS_theta", &HFS_theta, "HFS_theta/F" ) ;
-      ///////tt_out -> Branch( "", &, "/F" ) ;
+      tt_out -> Branch( "gen_HFS_px", &gen_HFS_px, "gen_HFS_px/F" ) ;
+      tt_out -> Branch( "gen_HFS_py", &gen_HFS_py, "gen_HFS_py/F" ) ;
+      tt_out -> Branch( "gen_HFS_pz", &gen_HFS_pz, "gen_HFS_pz/F" ) ;
+      tt_out -> Branch( "gen_HFS_e", &gen_HFS_e, "gen_HFS_e/F" ) ;
+      tt_out -> Branch( "gen_HFS_pt", &gen_HFS_pt, "gen_HFS_pt/F" ) ;
+      tt_out -> Branch( "gen_HFS_eta", &gen_HFS_eta, "gen_HFS_eta/F" ) ;
+      tt_out -> Branch( "gen_HFS_phi", &gen_HFS_phi, "gen_HFS_phi/F" ) ;
+      tt_out -> Branch( "gen_HFS_theta", &gen_HFS_theta, "gen_HFS_theta/F" ) ;
    }
 
 
@@ -205,6 +242,11 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       gen_e_theta = 0. ;
       gen_e_e = -1. ;
 
+      gen_HFS_px = 0. ;
+      gen_HFS_py = 0. ;
+      gen_HFS_pz = 0. ;
+      gen_HFS_e = 0. ;
+
       for ( int pi = 0; pi < Particle_ ; pi ++ ) {
 
          if ( Particle_PID[pi] == 11 && Particle_Status[pi] == 4 ) {
@@ -215,19 +257,41 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
             if ( verbose ) printf("  %d : found beam proton.  pi = %d\n", ei, pi ) ;
             beam_proton_energy = Particle_E[pi] ;
          }
-         if ( Particle_PID[pi] == 11 && Particle_Status[pi] == 1 && gen_e_e < 0. ) {
-            if ( verbose ) printf("  %d : found scattered electron.  pi = %d, E = %7.1f\n", ei, pi, Particle_E[pi] ) ;
-            gene_px = Particle_Px[pi] ;
-            gene_py = Particle_Py[pi] ;
-            gene_pz = Particle_Pz[pi] ;
-            gen_e_pt = Particle_PT[pi] ;
-            gen_e_eta = Particle_Eta[pi] ;
-            gen_e_phi = Particle_Phi[pi] ;
-            gen_e_e = Particle_E[pi] ;
-            gen_e_theta = atan2( gen_e_pt, gene_pz ) ;
-         }
+         if ( Particle_Status[pi] == 1 ) {
+
+            if ( Particle_PID[pi] == 11 && gen_e_e < 0. ) {
+
+               if ( verbose ) printf("  %d : found scattered electron.  pi = %d, E = %7.1f\n", ei, pi, Particle_E[pi] ) ;
+               gene_px = Particle_Px[pi] ;
+               gene_py = Particle_Py[pi] ;
+               gene_pz = Particle_Pz[pi] ;
+               gen_e_pt = Particle_PT[pi] ;
+               gen_e_eta = Particle_Eta[pi] ;
+               gen_e_phi = Particle_Phi[pi] ;
+               gen_e_e = Particle_E[pi] ;
+               gen_e_theta = atan2( gen_e_pt, gene_pz ) ;
+
+            } else {
+
+               if ( fabs(Particle_Eta[pi]) < 4.0 ) {
+                  gen_HFS_px += Particle_Px[pi] ;
+                  gen_HFS_py += Particle_Py[pi] ;
+                  gen_HFS_pz += Particle_Pz[pi] ;
+                  gen_HFS_e  += Particle_E[pi] ;
+                  if ( verbose ) {
+                     printf("    MC sum:  %3d :  %7d   :  px,py,pz = %7.2f, %7.2f, %7.2f    pt = %7.2f, eta = %8.3f, phi = %8.3f\n",
+                       pi, Particle_PID[pi], Particle_Px[pi], Particle_Py[pi], Particle_Pz[pi], Particle_PT[pi], Particle_Eta[pi], Particle_Phi[pi] ) ;
+                  }
+               }
+
+            }
+         } // status 1 ?
+
+
 
       } // pi
+
+      if ( verbose ) printf( " %3d : gen  sums :  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", ei, gen_HFS_px, gen_HFS_py, gen_HFS_pz, gen_HFS_e ) ;
 
       if ( beam_electron_energy < 0 ) {
          printf("\n\n *** %3d : can't find beam electron.\n\n", ei ) ;
@@ -266,79 +330,216 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       HFS_pz = 0. ;
       HFS_E  = 0. ;
 
-      for ( int i = 0; i < EFlowTrack_; i++ ) {
 
-         if ( EFlowTrack_PID[i] == 11 ) {
-            float dr = calc_dr( gen_e_phi, EFlowTrack_Phi[i], gen_e_eta, EFlowTrack_Eta[i] ) ;
-            if ( verbose ) printf("  %3d : EFlowTrack %3d, pid=11, dR = %7.4f\n", ei, i, dr ) ;
-            if ( dr < 0.05 ) continue ;
-         }
+      float mcmatch_sum_px(0.) ;
+      float mcmatch_sum_py(0.) ;
+      float mcmatch_sum_pz(0.) ;
 
-         float px, py, pz, e ;
 
-         ptep_to_xyze( EFlowTrack_PT[i], EFlowTrack_Eta[i], EFlowTrack_Phi[i], EFlowTrack_Mass[i],
-                       px, py, pz, e ) ;
 
-         if ( e < 0 ) continue ;
+      if ( !useJets ) {
 
-         if ( verbose ) printf( " %3d, trk %3d : pid = %5d  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n",
-           ei, i, EFlowTrack_PID[i], EFlowTrack_PT[i], px, py, pz, e ) ;
+   //==== EF Candidates +++++++++++++++++++++++++++++++++++++++++
 
-         //if ( EFlowTrack_Eta[i] > maxEta ) continue ;
-         if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
+         for ( int i = 0; i < EFlowTrack_; i++ ) {
 
-         HFS_px += px ;
-         HFS_py += py ;
-         HFS_pz += pz ;
-         HFS_E  += e  ;
+            if ( EFlowTrack_PID[i] == 11 ) {
+               float dr = calc_dr( gen_e_phi, EFlowTrack_Phi[i], gen_e_eta, EFlowTrack_Eta[i] ) ;
+               if ( verbose ) printf("  %3d : EFlowTrack %3d, pid=11, dR = %7.4f\n", ei, i, dr ) ;
+               if ( dr < 0.05 ) continue ;
+            }
 
-      } // i
+            float px, py, pz, e ;
 
-      for ( int i = 0; i < EFlowPhoton_; i++ ) {
+            if ( fabs(EFlowTrack_Eta[i]) > 4.0 ) continue ;
 
-         float px, py, pz, e ;
+            if ( EFlowTrack_PT[i] < minTrkPt ) continue ;
 
-         ptep_to_xyze( EFlowPhoton_ET[i], EFlowPhoton_Eta[i], EFlowPhoton_Phi[i], 0.,
-                       px, py, pz, e ) ;
+            ptep_to_xyze( EFlowTrack_PT[i], EFlowTrack_Eta[i], EFlowTrack_Phi[i], EFlowTrack_Mass[i],
+                          px, py, pz, e ) ;
 
-         if ( e < 0 ) continue ;
+            if ( e < 0 ) continue ;
 
-         if ( verbose ) printf( " %3d, trk %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n",
-           ei, i, EFlowPhoton_ET[i], px, py, pz, e ) ;
 
-         //if ( EFlowPhoton_Eta[i] > maxEta ) continue ;
-         if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
+            if ( verbose ) printf( " %3d, trk %3d : pid = %5d  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
+              ei, i, EFlowTrack_PID[i], EFlowTrack_PT[i], px, py, pz, e, EFlowTrack_Eta[i], EFlowTrack_Phi[i] ) ;
 
-         HFS_px += px ;
-         HFS_py += py ;
-         HFS_pz += pz ;
-         HFS_E  += e  ;
+            if ( verbose ) {
+               double min_mc_dr = 99999. ;
+               int mc_pi = -1 ;
+               for ( int pi = 0; pi < Particle_ ; pi ++ ) {
+                  if  ( Particle_Status[pi] != 1 ) continue ;
+                  if ( fabs(Particle_Charge[pi]) != 1 ) continue ;
+                  float dr = calc_dr( EFlowTrack_Phi[i], Particle_Phi[pi], EFlowTrack_Eta[i], Particle_Eta[pi] ) ;
+                  if ( dr < min_mc_dr ) {
+                     min_mc_dr = dr ;
+                     mc_pi = pi ;
+                  }
+               } // pi
+               if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
+                  printf( " %3d, trk %3d :                  MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
+                     ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
+                  mcmatch_sum_px += Particle_Px[mc_pi] ;
+                  mcmatch_sum_py += Particle_Py[mc_pi] ;
+                  mcmatch_sum_pz += Particle_Pz[mc_pi] ;
+               }
+            }
 
-      } // i
+            //if ( EFlowTrack_Eta[i] > maxEta ) continue ;
+            if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
 
-      for ( int i = 0; i < EFlowNeutralHadron_; i++ ) {
+            HFS_px += px ;
+            HFS_py += py ;
+            HFS_pz += pz ;
+            HFS_E  += e  ;
 
-         float px, py, pz, e ;
+         } // i
 
-         ptep_to_xyze( EFlowNeutralHadron_ET[i], EFlowNeutralHadron_Eta[i], EFlowNeutralHadron_Phi[i], 0.,
-                       px, py, pz, e ) ;
 
-         if ( e < 0 ) continue ;
 
-         if ( verbose ) printf( " %3d, trk %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n",
-           ei, i, EFlowNeutralHadron_ET[i], px, py, pz, e ) ;
 
-         //if ( EFlowNeutralHadron_Eta[i] > maxEta ) continue ;
-         if ( fabs(EFlowNeutralHadron_Eta[i]) > maxEta ) continue ;
 
-         HFS_px += px ;
-         HFS_py += py ;
-         HFS_pz += pz ;
-         HFS_E  += e  ;
+         for ( int i = 0; i < EFlowPhoton_; i++ ) {
 
-      } // i
+            float px, py, pz, e ;
 
-      if ( verbose ) printf( " %3d : sums :  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", ei, HFS_px, HFS_py, HFS_pz, HFS_E ) ;
+            if ( EFlowPhoton_Eta[i] > 4.0 ) continue ;
+
+            if ( EFlowPhoton_E[i] < minPhoE ) continue ;
+
+            ptep_to_xyze( EFlowPhoton_ET[i], EFlowPhoton_Eta[i], EFlowPhoton_Phi[i], 0.,
+                          px, py, pz, e ) ;
+
+            if ( e < 0 ) continue ;
+
+            if ( verbose ) printf( " %3d, pho %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
+              ei, i, EFlowPhoton_ET[i], px, py, pz, e, EFlowPhoton_Eta[i], EFlowPhoton_Phi[i] ) ;
+
+            if ( verbose ) {
+               double min_mc_dr = 99999. ;
+               int mc_pi = -1 ;
+               for ( int pi = 0; pi < Particle_ ; pi ++ ) {
+                  if  ( Particle_Status[pi] != 1 ) continue ;
+                  if ( fabs(Particle_PID[pi]) != 22 ) continue ;
+                  if ( fabs(Particle_Charge[pi]) != 0 ) continue ;
+                  float dr = calc_dr( EFlowPhoton_Phi[i], Particle_Phi[pi], EFlowPhoton_Eta[i], Particle_Eta[pi] ) ;
+                  if ( dr < min_mc_dr ) {
+                     min_mc_dr = dr ;
+                     mc_pi = pi ;
+                  }
+               } // pi
+               if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
+                  printf( " %3d, pho %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
+                     ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
+                  mcmatch_sum_px += Particle_Px[mc_pi] ;
+                  mcmatch_sum_py += Particle_Py[mc_pi] ;
+                  mcmatch_sum_pz += Particle_Pz[mc_pi] ;
+               }
+            }
+
+            //if ( EFlowPhoton_Eta[i] > maxEta ) continue ;
+            if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
+
+            HFS_px += px ;
+            HFS_py += py ;
+            HFS_pz += pz ;
+            HFS_E  += e  ;
+
+         } // i
+
+
+
+
+
+
+
+         for ( int i = 0; i < EFlowNeutralHadron_; i++ ) {
+
+            float px, py, pz, e ;
+
+            if ( fabs(EFlowNeutralHadron_Eta[i]) > 4.0 ) continue ;
+
+            if ( EFlowNeutralHadron_E[i] < minNHE ) continue ;
+
+            ptep_to_xyze( EFlowNeutralHadron_ET[i], EFlowNeutralHadron_Eta[i], EFlowNeutralHadron_Phi[i], 0.,
+                          px, py, pz, e ) ;
+
+            if ( e < 0 ) continue ;
+
+            if ( verbose ) printf( " %3d, nh  %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
+              ei, i, EFlowNeutralHadron_ET[i], px, py, pz, e, EFlowNeutralHadron_Eta[i], EFlowNeutralHadron_Phi[i] ) ;
+
+            if ( verbose ) {
+               double min_mc_dr = 99999. ;
+               int mc_pi = -1 ;
+               for ( int pi = 0; pi < Particle_ ; pi ++ ) {
+                  if  ( Particle_Status[pi] != 1 ) continue ;
+                  if ( fabs(Particle_PID[pi]) == 22 ) continue ;
+                  if ( fabs(Particle_Charge[pi]) != 0 ) continue ;
+                  float dr = calc_dr( EFlowNeutralHadron_Phi[i], Particle_Phi[pi], EFlowNeutralHadron_Eta[i], Particle_Eta[pi] ) ;
+                  if ( dr < min_mc_dr ) {
+                     min_mc_dr = dr ;
+                     mc_pi = pi ;
+                  }
+               } // pi
+               if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
+                  printf( " %3d, nh  %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f  PID = %d\n",
+                     ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi], Particle_PID[mc_pi] ) ;
+                  mcmatch_sum_px += Particle_Px[mc_pi] ;
+                  mcmatch_sum_py += Particle_Py[mc_pi] ;
+                  mcmatch_sum_pz += Particle_Pz[mc_pi] ;
+               }
+            }
+
+
+            //if ( EFlowNeutralHadron_Eta[i] > maxEta ) continue ;
+            if ( fabs(EFlowNeutralHadron_Eta[i]) > maxEta ) continue ;
+
+            HFS_px += px ;
+            HFS_py += py ;
+            HFS_pz += pz ;
+            HFS_E  += e  ;
+
+         } // i
+
+   //==== EF Candidates +++++++++++++++++++++++++++++++++++++++++
+
+      } else {
+
+         for ( int i = 0; i < Jet_; i++ ) {
+
+            float px, py, pz, e ;
+
+            if ( Jet_Eta[i] > 4.0 ) continue ;
+
+            ptep_to_xyze( Jet_PT[i], Jet_Eta[i], Jet_Phi[i], Jet_Mass[i],
+                          px, py, pz, e ) ;
+
+            if ( e < 0 ) continue ;
+
+            if ( verbose ) printf( " %3d, jet %3d :  pt = %7.2f, eta = %7.3f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n",
+              ei, i, Jet_PT[i], Jet_Eta[i],  px, py, pz, e ) ;
+
+            if ( fabs(Jet_Eta[i]) > maxEta ) continue ;
+
+            HFS_px += px ;
+            HFS_py += py ;
+            HFS_pz += pz ;
+            HFS_E  += e  ;
+
+         } // i
+
+      } // useJets?
+
+
+      if ( verbose ) printf( " %3d : reco  sums :  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", ei, HFS_px, HFS_py, HFS_pz, HFS_E ) ;
+      if ( verbose ) printf( " %3d : gen   sums :  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", ei, gen_HFS_px, gen_HFS_py, gen_HFS_pz, gen_HFS_e ) ;
+      if ( verbose ) printf( " %3d : match sums :  px,py,pz = %7.2f, %7.2f, %7.2f   \n", ei, mcmatch_sum_px, mcmatch_sum_py, mcmatch_sum_pz ) ;
+
+      if ( HFS_E <= 0. ) {
+         if ( verbose ) printf(" %3d :  empty HFS.  Skipping event.\n", ei ) ;
+         continue ;
+      }
 
       float ef_sum_pt = sqrt( HFS_px * HFS_px + HFS_py * HFS_py ) ;
 
@@ -347,7 +548,13 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
          HFS_theta = atan2( HFS_pt, HFS_pz ) ;
          HFS_phi = atan2( HFS_py, HFS_px ) ;
          HFS_eta = -1. * log( tan( HFS_theta/2. ) ) ;
+
+         gen_HFS_pt = sqrt( gen_HFS_px * gen_HFS_px + gen_HFS_py * gen_HFS_py ) ;
+         gen_HFS_theta = atan2( gen_HFS_pt, gen_HFS_pz ) ;
+         gen_HFS_phi = atan2( gen_HFS_py, gen_HFS_px ) ;
+         gen_HFS_eta = -1. * log( tan( gen_HFS_theta/2. ) ) ;
       }
+
 
 
 
@@ -378,19 +585,25 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       rec_e_eta = Electron_Eta[best_ei] ;
       rec_e_phi = Electron_Phi[best_ei] ;
 
-      e_px = rec_e_pt * cos( rec_e_phi ) ;
-      e_py = rec_e_pt * sin( rec_e_phi ) ;
-      if ( fabs(sin( rec_e_theta )) > 1e-9 ) {
-         e_pz = rec_e_pt * ( cos( rec_e_theta ) / sin( rec_e_theta ) ) ;
-      } else {
-         e_pz = 999. ;
-      }
+      ///e_px = rec_e_pt * cos( rec_e_phi ) ;
+      ///e_py = rec_e_pt * sin( rec_e_phi ) ;
+      ///if ( fabs(sin( rec_e_theta )) > 1e-9 ) {
+      ///   e_pz = rec_e_pt * ( cos( rec_e_theta ) / sin( rec_e_theta ) ) ;
+      ///} else {
+      ///   e_pz = 999. ;
+      ///}
+
+      ptep_to_xyze( rec_e_pt, rec_e_eta, rec_e_phi, 0.000511,
+                          e_px, e_py, e_pz, rec_e_e ) ;
+
 
       rec_e_theta = 2. * atan( exp( -1. * rec_e_eta ) ) ;
-      rec_e_e = rec_e_pt / sin( rec_e_theta ) ;
+      ///rec_e_e = rec_e_pt / sin( rec_e_theta ) ;
 
       if ( verbose ) printf(" %3d : reco electron,  pt = %7.2f (%7.2f)  e = %7.2f (%7.2f)  theta = %8.5f (%8.5f)\n",
         ei, rec_e_pt, gen_e_pt,  rec_e_e, gen_e_e,  rec_e_theta, gen_e_theta ) ;
+      if ( verbose ) printf(" %3d : reco electron,  px = %7.2f (%7.2f)  py = %7.2f (%7.2f)  pz = %7.2f (%7.2f)\n",
+        ei, e_px, gene_px,  e_py, gene_py,  e_pz, gene_pz ) ;
 
 
       //-- Sigma method
@@ -532,19 +745,25 @@ void ptep_to_xyze( float pt, double eta, double phi, double m,
    e = -1. ;
 
 
-   float theta = 2. * atan( exp( -1. * eta ) ) ;
+   ///// float theta = 2. * atan( exp( -1. * eta ) ) ;
 
-   float st = sin( theta ) ;
+   ///////float st = sin( theta ) ;
 
-   if ( fabs( st ) < 1.e-9 ) return ;
+   ///////if ( fabs( st ) < 1.e-9 ) return ;
 
-   float p = pt / st ;
+   ///////float p = pt / st ;
 
-   e = sqrt( p*p + m*m ) ;
+   /////e = sqrt( p*p + m*m ) ;
+
+   ///////pz = p  * cos( theta ) ;
 
    px = pt * cos( phi ) ;
    py = pt * sin( phi ) ;
-   pz = p  * cos( theta ) ;
+   pz = pt  * sinh( eta ) ;
+
+   float p2 = px*px + py*py + pz*pz ;
+   e = sqrt( p2 + m*m ) ;
+
 
 }
 
