@@ -9,28 +9,44 @@ float calc_dr( double phi1, double phi2, double eta1, double eta2 ) ;
 void ptep_to_xyze( float pt, double eta, double phi, double m,
                    float& px, float& py, float& pz, float& e ) ;
 
+float eta_acceptance( float eta ) ;
+
 void minitree_maker::Loop( bool verbose, int maxEvt )
 {
+
+   TRandom2 tran(12345) ;
+
+   bool useEtaTurnoff = true ;
 
    //bool useJets = true ;
    bool useJets = false ;
 
+  //--- nominal minimums
+     float minTrkPt = 0.30 ; //--- YR says 150-400 MeV
+     float minPhoE = 0.10 ; //--- YR says 50 MeV, use 100 MeV
+     float minNHE = 0.50 ; //--- YR says 500 MeV
+
+
+
    //float maxEta = 2.4 ;
    //float maxEta = 2.7 ;
-   float maxEta = 4.0 ;
+     float maxEta = 3.3 ;
+   //float maxEta = 4.0 ;
    //float maxEta = 3.26 ;
-
-   float minTrkPt = 0.30 ; //--- YR says 150-400 MeV
-   float minPhoE = 0.10 ; //--- YR says 50 MeV, use 100 MeV
-   float minNHE = 0.50 ; //--- YR says 500 MeV
 
    //float minTrkPt = 0.50 ;
    //float minPhoE = 0.10 ;
    //float minNHE = 0.50 ;
 
+   //--- hardmin1
    //float minTrkPt = 0.50 ;
-   //float minPhoE = 0.20 ;
-   //float minNHE = 0.80 ;
+   //float minPhoE = 0.50 ;
+   //float minNHE = 1.50 ;
+
+   //--- hardmin2
+   //float minTrkPt = 1.50 ;
+   //float minPhoE = 1.50 ;
+   //float minNHE = 4.50 ;
 
 
 
@@ -103,6 +119,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float HFS_eta ;
    float HFS_phi ;
    float HFS_theta ;
+   float HFS_gamma ;
 
    float gen_HFS_px ;
    float gen_HFS_py ;
@@ -164,6 +181,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       tt_out -> Branch( "HFS_eta", &HFS_eta, "HFS_eta/F" ) ;
       tt_out -> Branch( "HFS_phi", &HFS_phi, "HFS_phi/F" ) ;
       tt_out -> Branch( "HFS_theta", &HFS_theta, "HFS_theta/F" ) ;
+      tt_out -> Branch( "HFS_gamma", &HFS_gamma, "HFS_gamma/F" ) ;
       tt_out -> Branch( "gen_HFS_px", &gen_HFS_px, "gen_HFS_px/F" ) ;
       tt_out -> Branch( "gen_HFS_py", &gen_HFS_py, "gen_HFS_py/F" ) ;
       tt_out -> Branch( "gen_HFS_pz", &gen_HFS_pz, "gen_HFS_pz/F" ) ;
@@ -388,12 +406,20 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
             //if ( EFlowTrack_Eta[i] > maxEta ) continue ;
             if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
 
+            if ( useEtaTurnoff ) {
+               float prob = eta_acceptance( EFlowTrack_Eta[i] ) ;
+               float rn = tran.Uniform() ;
+               if ( rn > prob ) continue ;
+            }
+
             HFS_px += px ;
             HFS_py += py ;
             HFS_pz += pz ;
             HFS_E  += e  ;
 
          } // i
+
+         if ( verbose ) printf( "  --- after tracks:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
 
 
 
@@ -440,6 +466,12 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
             //if ( EFlowPhoton_Eta[i] > maxEta ) continue ;
             if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
 
+            if ( useEtaTurnoff ) {
+               float prob = eta_acceptance( EFlowPhoton_Eta[i] ) ;
+               float rn = tran.Uniform() ;
+               if ( rn > prob ) continue ;
+            }
+
             HFS_px += px ;
             HFS_py += py ;
             HFS_pz += pz ;
@@ -448,6 +480,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
          } // i
 
 
+         if ( verbose ) printf( "  --- after photons:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
 
 
 
@@ -495,12 +528,20 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
             //if ( EFlowNeutralHadron_Eta[i] > maxEta ) continue ;
             if ( fabs(EFlowNeutralHadron_Eta[i]) > maxEta ) continue ;
 
+            if ( useEtaTurnoff ) {
+               float prob = eta_acceptance( EFlowNeutralHadron_Eta[i] ) ;
+               float rn = tran.Uniform() ;
+               if ( rn > prob ) continue ;
+            }
+
             HFS_px += px ;
             HFS_py += py ;
             HFS_pz += pz ;
             HFS_E  += e  ;
 
          } // i
+
+         if ( verbose ) printf( "  --- after NH    :  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
 
    //==== EF Candidates +++++++++++++++++++++++++++++++++++++++++
 
@@ -521,6 +562,12 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
               ei, i, Jet_PT[i], Jet_Eta[i],  px, py, pz, e ) ;
 
             if ( fabs(Jet_Eta[i]) > maxEta ) continue ;
+
+            if ( useEtaTurnoff ) {
+               float prob = eta_acceptance( Jet_Eta[i] ) ;
+               float rn = tran.Uniform() ;
+               if ( rn > prob ) continue ;
+            }
 
             HFS_px += px ;
             HFS_py += py ;
@@ -548,6 +595,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
          HFS_theta = atan2( HFS_pt, HFS_pz ) ;
          HFS_phi = atan2( HFS_py, HFS_px ) ;
          HFS_eta = -1. * log( tan( HFS_theta/2. ) ) ;
+
 
          gen_HFS_pt = sqrt( gen_HFS_px * gen_HFS_px + gen_HFS_py * gen_HFS_py ) ;
          gen_HFS_theta = atan2( gen_HFS_pt, gen_HFS_pz ) ;
@@ -581,6 +629,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
          continue ;
       }
 
+
       rec_e_pt = Electron_PT[best_ei] ;
       rec_e_eta = Electron_Eta[best_ei] ;
       rec_e_phi = Electron_Phi[best_ei] ;
@@ -598,6 +647,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
 
       rec_e_theta = 2. * atan( exp( -1. * rec_e_eta ) ) ;
+      float rec_e_theta_check = atan2( rec_e_pt, e_pz ) ;
+      if (verbose) printf(" *** Check: 2. * atan( exp( -1. * rec_e_eta ) ) = %8.4f,  atan2( rec_e_pt, rec_e_pz ) = %8.4f\n", rec_e_theta, rec_e_theta_check ) ;
       ///rec_e_e = rec_e_pt / sin( rec_e_theta ) ;
 
       if ( verbose ) printf(" %3d : reco electron,  pt = %7.2f (%7.2f)  e = %7.2f (%7.2f)  theta = %8.5f (%8.5f)\n",
@@ -653,6 +704,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
       float tan_gamma_over_2 = Sigma / pth ;
 
+      HFS_gamma = 2 * atan( tan_gamma_over_2 ) ;
+
       y_da =  tan_gamma_over_2 / ( tan_gamma_over_2 + tan( rec_e_theta / 2. ) ) ;
 
       Q2_da = 4. * beam_electron_energy * beam_electron_energy * (1. / tan( rec_e_theta / 2. ))  /  ( tan_gamma_over_2 + tan( rec_e_theta / 2. ) ) ;
@@ -660,8 +713,17 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       x_da = Q2_da / ( gen_s * y_da ) ;
 
 
+
       if ( verbose ) {
          printf("\n") ;
+
+         float gamma = 2. * atan( tan_gamma_over_2 ) ;
+
+
+         printf("     %3d :  HFS   px,py,pz = %7.2f, %7.2f, %7.2f    E = %7.2f   pt,eta,phi,theta = %7.2f, %8.4f, %8.4f, %8.4f\n",
+               ei, HFS_px, HFS_py, HFS_pz, HFS_E, HFS_pt, HFS_eta, HFS_phi, HFS_theta ) ;
+         printf("     %3d :  tan(gamma/2) = %8.4f,  gamma = %8.4f,  HFS_theta = %8.4f\n", ei, tan_gamma_over_2, gamma, HFS_theta ) ;
+
          printf("     %3d :  Q2 :  true = %7.1f  sigma = %7.1f  e = %7.1f  h = %7.1f  da = %7.1f\n",
             ei, gen_Q2, Q2_sigma, Q2_e, Q2_h, Q2_da ) ;
          printf("     %3d :  x  :  true = %7.3f  sigma = %7.3f  e = %7.3f  h = %7.3f  da = %7.3f\n",
@@ -764,8 +826,27 @@ void ptep_to_xyze( float pt, double eta, double phi, double m,
    float p2 = px*px + py*py + pz*pz ;
    e = sqrt( p2 + m*m ) ;
 
+   //////printf("  *** DEBUG:  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", px, py, pz, e ) ;
+
 
 }
+
+
+//==========
+
+float eta_acceptance( float eta ) {
+
+   //--etf1
+   //return 1./(1.+exp(-9.0*(3.3-eta))) ;
+
+   //--etf2
+   //return 1./(1.+exp(-5.0*(2.9-eta))) ;
+
+   //--etf3
+   return 1./(1.+exp(-5.0*(2.4-eta))) ;
+
+} // eta_acceptance
+
 
 
 
