@@ -16,7 +16,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    TRandom2 tran(12345) ;
 
-   bool useEtaTurnoff = true ;
+   //bool useEtaTurnoff = true ;
+   bool useEtaTurnoff = false ;
 
    //bool useJets = true ;
    bool useJets = false ;
@@ -30,8 +31,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    //float maxEta = 2.4 ;
    //float maxEta = 2.7 ;
-     float maxEta = 3.3 ;
-   //float maxEta = 4.0 ;
+   //float maxEta = 3.3 ;
+     float maxEta = 4.0 ;
    //float maxEta = 3.26 ;
 
    //float minTrkPt = 0.50 ;
