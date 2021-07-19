@@ -191,6 +191,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       tt_out -> Branch( "gen_HFS_eta", &gen_HFS_eta, "gen_HFS_eta/F" ) ;
       tt_out -> Branch( "gen_HFS_phi", &gen_HFS_phi, "gen_HFS_phi/F" ) ;
       tt_out -> Branch( "gen_HFS_theta", &gen_HFS_theta, "gen_HFS_theta/F" ) ;
+      tt_out -> Branch( "beam_electron_energy", &beam_electron_energy, "beam_electron_energy/F" ) ;
+      tt_out -> Branch( "beam_proton_energy", &beam_proton_energy, "beam_proton_energy/F" ) ;
    }
 
 
