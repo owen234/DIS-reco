@@ -94,6 +94,25 @@ That will produce the file out.root, which contains a big TTree with the gen-lev
 of the detector reconstruction.
 
 
+**5.  Make the minitree from the Delphes output**
+
+```
+<start an interactive root session>
+.L minitree_maker.c
+minitree_maker m("<your delphes root file here>")
+m.Loop(true,10)
+```
+That will print out a lot of infor for the first 10 events.  To run over the whole file, do this
+```
+m.Loop(0,-1)
+```
+The output file is mini-tree.root
+
+
+
+
+
+
 
 
 
