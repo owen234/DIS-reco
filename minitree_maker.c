@@ -16,6 +16,9 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    TRandom2 tran(12345) ;
 
+   //float gen_HFS_max_eta = 4.0 ;
+   float gen_HFS_max_eta = 9.0 ;
+
    //bool useEtaTurnoff = true ;
    bool useEtaTurnoff = false ;
 
@@ -294,7 +297,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
             } else {
 
-               if ( fabs(Particle_Eta[pi]) < 4.0 ) {
+               if ( fabs(Particle_Eta[pi]) < gen_HFS_max_eta ) {
                   gen_HFS_px += Particle_Px[pi] ;
                   gen_HFS_py += Particle_Py[pi] ;
                   gen_HFS_pz += Particle_Pz[pi] ;
