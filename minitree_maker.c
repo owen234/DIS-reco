@@ -16,7 +16,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    TRandom2 tran(12345) ;
 
-   bool  towers_only_for_hfs = true ;
+   bool  towers_only_for_hfs = true ; //-- agrees better with fullsim
+   //bool  towers_only_for_hfs = false ;
 
    float gen_HFS_max_eta = 4.0 ;
    //float gen_HFS_max_eta = 9.0 ;
@@ -910,7 +911,15 @@ float eta_acceptance( float eta ) {
    //return 1./(1.+exp(-5.0*(2.9-eta))) ;
 
    //--etf3
-   return 1./(1.+exp(-5.0*(2.4-eta))) ;
+   //return 1./(1.+exp(-5.0*(2.4-eta))) ;
+
+   float rval = 1. ;
+   if ( eta > 0 ) {
+      rval = 1./(1.+exp(-12.0*(3.0-eta))) ;
+   } else {
+      rval = 1./(1.+exp(25.0*(-0.76-eta))) ;
+   }
+   return rval ;
 
 } // eta_acceptance
 
