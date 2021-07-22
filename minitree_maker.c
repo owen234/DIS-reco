@@ -16,8 +16,10 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    TRandom2 tran(12345) ;
 
-   //float gen_HFS_max_eta = 4.0 ;
-   float gen_HFS_max_eta = 9.0 ;
+   bool  towers_only_for_hfs = true ;
+
+   float gen_HFS_max_eta = 4.0 ;
+   //float gen_HFS_max_eta = 9.0 ;
 
    //bool useEtaTurnoff = true ;
    bool useEtaTurnoff = false ;
@@ -35,7 +37,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    //float maxEta = 2.4 ;
    //float maxEta = 2.7 ;
    //float maxEta = 3.3 ;
-     float maxEta = 4.0 ;
+   //float maxEta = 4.0 ;
+     float maxEta = 3.3 ;
    //float maxEta = 3.26 ;
 
    //float minTrkPt = 0.50 ;
@@ -285,7 +288,8 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
             if ( Particle_PID[pi] == 11 && gen_e_e < 0. ) {
 
-               if ( verbose ) printf("  %d : found scattered electron.  pi = %d, E = %7.1f\n", ei, pi, Particle_E[pi] ) ;
+               if ( verbose ) printf("  %d : found scattered electron.  pi = %d, E = %7.1f, eta,phi = %8.3f, %8.3f\n", 
+                    ei, pi, Particle_E[pi], Particle_Eta[pi], Particle_Phi[pi] ) ;
                gene_px = Particle_Px[pi] ;
                gene_py = Particle_Py[pi] ;
                gene_pz = Particle_Pz[pi] ;
@@ -363,195 +367,252 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
       if ( !useJets ) {
 
+
+         if ( towers_only_for_hfs ) {
+
+   //==== Towers +++++++++++++++++++++++++++++++++++++++++
+
+            int ti_ele = -1 ;
+            float min_dr_with_ele = 99999. ;
+
+            for ( int i = 0; i < Tower_; i++ ) {
+
+               float dr_with_ele = calc_dr( gen_e_phi, Tower_Phi[i], gen_e_eta, Tower_Eta[i] ) ;
+               if ( dr_with_ele < min_dr_with_ele ) {
+                  min_dr_with_ele = dr_with_ele ;
+                  ti_ele = i ;
+               }
+
+            } // i
+
+            if ( ti_ele < 0 ) { printf("\n\n *** can't find electron tower.\n\n") ; gSystem->Exit(-1) ; }
+
+            if ( verbose ) printf("  %3d : ele tower %3d :  dr with electron = %8.4f,  E = %7.1f,  eta,phi = %8.3f, %8.3f\n",
+              ei, ti_ele, min_dr_with_ele, Tower_E[ti_ele], Tower_Eta[ti_ele], Tower_Phi[ti_ele] ) ;
+
+            for ( int i = 0; i < Tower_; i++ ) {
+
+               if ( i == ti_ele ) continue ;
+
+               if ( fabs( Tower_Eta[i] ) > maxEta ) continue ;
+
+               float px, py, pz, e ;
+               ptep_to_xyze( Tower_ET[i], Tower_Eta[i], Tower_Phi[i], 0.,
+                             px, py, pz, e ) ;
+
+               if ( e < 0 ) continue ;
+
+               if ( verbose ) printf( " %3d, tower %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
+                 ei, i, Tower_ET[i], px, py, pz, e, Tower_Eta[i], Tower_Phi[i] ) ;
+
+               if ( useEtaTurnoff ) {
+                  float prob = eta_acceptance( Tower_Eta[i] ) ;
+                  float rn = tran.Uniform() ;
+                  if ( rn > prob ) continue ;
+               }
+
+               HFS_px += px ;
+               HFS_py += py ;
+               HFS_pz += pz ;
+               HFS_E  += e  ;
+
+            } // i
+
+         } else {
+
    //==== EF Candidates +++++++++++++++++++++++++++++++++++++++++
 
-         for ( int i = 0; i < EFlowTrack_; i++ ) {
+            for ( int i = 0; i < EFlowTrack_; i++ ) {
 
-            if ( EFlowTrack_PID[i] == 11 ) {
-               float dr = calc_dr( gen_e_phi, EFlowTrack_Phi[i], gen_e_eta, EFlowTrack_Eta[i] ) ;
-               if ( verbose ) printf("  %3d : EFlowTrack %3d, pid=11, dR = %7.4f\n", ei, i, dr ) ;
-               if ( dr < 0.05 ) continue ;
-            }
-
-            float px, py, pz, e ;
-
-            if ( fabs(EFlowTrack_Eta[i]) > 4.0 ) continue ;
-
-            if ( EFlowTrack_PT[i] < minTrkPt ) continue ;
-
-            ptep_to_xyze( EFlowTrack_PT[i], EFlowTrack_Eta[i], EFlowTrack_Phi[i], EFlowTrack_Mass[i],
-                          px, py, pz, e ) ;
-
-            if ( e < 0 ) continue ;
-
-
-            if ( verbose ) printf( " %3d, trk %3d : pid = %5d  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
-              ei, i, EFlowTrack_PID[i], EFlowTrack_PT[i], px, py, pz, e, EFlowTrack_Eta[i], EFlowTrack_Phi[i] ) ;
-
-            if ( verbose ) {
-               double min_mc_dr = 99999. ;
-               int mc_pi = -1 ;
-               for ( int pi = 0; pi < Particle_ ; pi ++ ) {
-                  if  ( Particle_Status[pi] != 1 ) continue ;
-                  if ( fabs(Particle_Charge[pi]) != 1 ) continue ;
-                  float dr = calc_dr( EFlowTrack_Phi[i], Particle_Phi[pi], EFlowTrack_Eta[i], Particle_Eta[pi] ) ;
-                  if ( dr < min_mc_dr ) {
-                     min_mc_dr = dr ;
-                     mc_pi = pi ;
-                  }
-               } // pi
-               if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
-                  printf( " %3d, trk %3d :                  MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
-                     ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
-                  mcmatch_sum_px += Particle_Px[mc_pi] ;
-                  mcmatch_sum_py += Particle_Py[mc_pi] ;
-                  mcmatch_sum_pz += Particle_Pz[mc_pi] ;
+               if ( EFlowTrack_PID[i] == 11 ) {
+                  float dr = calc_dr( gen_e_phi, EFlowTrack_Phi[i], gen_e_eta, EFlowTrack_Eta[i] ) ;
+                  if ( verbose ) printf("  %3d : EFlowTrack %3d, pid=11, dR = %7.4f\n", ei, i, dr ) ;
+                  if ( dr < 0.05 ) continue ;
                }
-            }
 
-            //if ( EFlowTrack_Eta[i] > maxEta ) continue ;
-            if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
+               float px, py, pz, e ;
 
-            if ( useEtaTurnoff ) {
-               float prob = eta_acceptance( EFlowTrack_Eta[i] ) ;
-               float rn = tran.Uniform() ;
-               if ( rn > prob ) continue ;
-            }
+               if ( fabs(EFlowTrack_Eta[i]) > 4.0 ) continue ;
 
-            HFS_px += px ;
-            HFS_py += py ;
-            HFS_pz += pz ;
-            HFS_E  += e  ;
+               if ( EFlowTrack_PT[i] < minTrkPt ) continue ;
 
-         } // i
+               ptep_to_xyze( EFlowTrack_PT[i], EFlowTrack_Eta[i], EFlowTrack_Phi[i], EFlowTrack_Mass[i],
+                             px, py, pz, e ) ;
 
-         if ( verbose ) printf( "  --- after tracks:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
+               if ( e < 0 ) continue ;
 
 
+               if ( verbose ) printf( " %3d, trk %3d : pid = %5d  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
+                 ei, i, EFlowTrack_PID[i], EFlowTrack_PT[i], px, py, pz, e, EFlowTrack_Eta[i], EFlowTrack_Phi[i] ) ;
 
-
-
-         for ( int i = 0; i < EFlowPhoton_; i++ ) {
-
-            float px, py, pz, e ;
-
-            if ( EFlowPhoton_Eta[i] > 4.0 ) continue ;
-
-            if ( EFlowPhoton_E[i] < minPhoE ) continue ;
-
-            ptep_to_xyze( EFlowPhoton_ET[i], EFlowPhoton_Eta[i], EFlowPhoton_Phi[i], 0.,
-                          px, py, pz, e ) ;
-
-            if ( e < 0 ) continue ;
-
-            if ( verbose ) printf( " %3d, pho %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
-              ei, i, EFlowPhoton_ET[i], px, py, pz, e, EFlowPhoton_Eta[i], EFlowPhoton_Phi[i] ) ;
-
-            if ( verbose ) {
-               double min_mc_dr = 99999. ;
-               int mc_pi = -1 ;
-               for ( int pi = 0; pi < Particle_ ; pi ++ ) {
-                  if  ( Particle_Status[pi] != 1 ) continue ;
-                  if ( fabs(Particle_PID[pi]) != 22 ) continue ;
-                  if ( fabs(Particle_Charge[pi]) != 0 ) continue ;
-                  float dr = calc_dr( EFlowPhoton_Phi[i], Particle_Phi[pi], EFlowPhoton_Eta[i], Particle_Eta[pi] ) ;
-                  if ( dr < min_mc_dr ) {
-                     min_mc_dr = dr ;
-                     mc_pi = pi ;
+               if ( verbose ) {
+                  double min_mc_dr = 99999. ;
+                  int mc_pi = -1 ;
+                  for ( int pi = 0; pi < Particle_ ; pi ++ ) {
+                     if  ( Particle_Status[pi] != 1 ) continue ;
+                     if ( fabs(Particle_Charge[pi]) != 1 ) continue ;
+                     float dr = calc_dr( EFlowTrack_Phi[i], Particle_Phi[pi], EFlowTrack_Eta[i], Particle_Eta[pi] ) ;
+                     if ( dr < min_mc_dr ) {
+                        min_mc_dr = dr ;
+                        mc_pi = pi ;
+                     }
+                  } // pi
+                  if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
+                     printf( " %3d, trk %3d :                  MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
+                        ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
+                     mcmatch_sum_px += Particle_Px[mc_pi] ;
+                     mcmatch_sum_py += Particle_Py[mc_pi] ;
+                     mcmatch_sum_pz += Particle_Pz[mc_pi] ;
                   }
-               } // pi
-               if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
-                  printf( " %3d, pho %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
-                     ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
-                  mcmatch_sum_px += Particle_Px[mc_pi] ;
-                  mcmatch_sum_py += Particle_Py[mc_pi] ;
-                  mcmatch_sum_pz += Particle_Pz[mc_pi] ;
                }
-            }
 
-            //if ( EFlowPhoton_Eta[i] > maxEta ) continue ;
-            if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
+               //if ( EFlowTrack_Eta[i] > maxEta ) continue ;
+               if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
 
-            if ( useEtaTurnoff ) {
-               float prob = eta_acceptance( EFlowPhoton_Eta[i] ) ;
-               float rn = tran.Uniform() ;
-               if ( rn > prob ) continue ;
-            }
+               if ( useEtaTurnoff ) {
+                  float prob = eta_acceptance( EFlowTrack_Eta[i] ) ;
+                  float rn = tran.Uniform() ;
+                  if ( rn > prob ) continue ;
+               }
 
-            HFS_px += px ;
-            HFS_py += py ;
-            HFS_pz += pz ;
-            HFS_E  += e  ;
+               HFS_px += px ;
+               HFS_py += py ;
+               HFS_pz += pz ;
+               HFS_E  += e  ;
 
-         } // i
+            } // i
 
-
-         if ( verbose ) printf( "  --- after photons:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
+            if ( verbose ) printf( "  --- after tracks:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
 
 
 
 
 
-         for ( int i = 0; i < EFlowNeutralHadron_; i++ ) {
+            for ( int i = 0; i < EFlowPhoton_; i++ ) {
 
-            float px, py, pz, e ;
+               float px, py, pz, e ;
 
-            if ( fabs(EFlowNeutralHadron_Eta[i]) > 4.0 ) continue ;
+               if ( EFlowPhoton_Eta[i] > 4.0 ) continue ;
 
-            if ( EFlowNeutralHadron_E[i] < minNHE ) continue ;
+               if ( EFlowPhoton_E[i] < minPhoE ) continue ;
 
-            ptep_to_xyze( EFlowNeutralHadron_ET[i], EFlowNeutralHadron_Eta[i], EFlowNeutralHadron_Phi[i], 0.,
-                          px, py, pz, e ) ;
+               ptep_to_xyze( EFlowPhoton_ET[i], EFlowPhoton_Eta[i], EFlowPhoton_Phi[i], 0.,
+                             px, py, pz, e ) ;
 
-            if ( e < 0 ) continue ;
+               if ( e < 0 ) continue ;
 
-            if ( verbose ) printf( " %3d, nh  %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
-              ei, i, EFlowNeutralHadron_ET[i], px, py, pz, e, EFlowNeutralHadron_Eta[i], EFlowNeutralHadron_Phi[i] ) ;
+               if ( verbose ) printf( " %3d, pho %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
+                 ei, i, EFlowPhoton_ET[i], px, py, pz, e, EFlowPhoton_Eta[i], EFlowPhoton_Phi[i] ) ;
 
-            if ( verbose ) {
-               double min_mc_dr = 99999. ;
-               int mc_pi = -1 ;
-               for ( int pi = 0; pi < Particle_ ; pi ++ ) {
-                  if  ( Particle_Status[pi] != 1 ) continue ;
-                  if ( fabs(Particle_PID[pi]) == 22 ) continue ;
-                  if ( fabs(Particle_Charge[pi]) != 0 ) continue ;
-                  float dr = calc_dr( EFlowNeutralHadron_Phi[i], Particle_Phi[pi], EFlowNeutralHadron_Eta[i], Particle_Eta[pi] ) ;
-                  if ( dr < min_mc_dr ) {
-                     min_mc_dr = dr ;
-                     mc_pi = pi ;
+               if ( verbose ) {
+                  double min_mc_dr = 99999. ;
+                  int mc_pi = -1 ;
+                  for ( int pi = 0; pi < Particle_ ; pi ++ ) {
+                     if  ( Particle_Status[pi] != 1 ) continue ;
+                     if ( fabs(Particle_PID[pi]) != 22 ) continue ;
+                     if ( fabs(Particle_Charge[pi]) != 0 ) continue ;
+                     float dr = calc_dr( EFlowPhoton_Phi[i], Particle_Phi[pi], EFlowPhoton_Eta[i], Particle_Eta[pi] ) ;
+                     if ( dr < min_mc_dr ) {
+                        min_mc_dr = dr ;
+                        mc_pi = pi ;
+                     }
+                  } // pi
+                  if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
+                     printf( " %3d, pho %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
+                        ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
+                     mcmatch_sum_px += Particle_Px[mc_pi] ;
+                     mcmatch_sum_py += Particle_Py[mc_pi] ;
+                     mcmatch_sum_pz += Particle_Pz[mc_pi] ;
                   }
-               } // pi
-               if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
-                  printf( " %3d, nh  %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f  PID = %d\n",
-                     ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi], Particle_PID[mc_pi] ) ;
-                  mcmatch_sum_px += Particle_Px[mc_pi] ;
-                  mcmatch_sum_py += Particle_Py[mc_pi] ;
-                  mcmatch_sum_pz += Particle_Pz[mc_pi] ;
                }
-            }
+
+               //if ( EFlowPhoton_Eta[i] > maxEta ) continue ;
+               if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
+
+               if ( useEtaTurnoff ) {
+                  float prob = eta_acceptance( EFlowPhoton_Eta[i] ) ;
+                  float rn = tran.Uniform() ;
+                  if ( rn > prob ) continue ;
+               }
+
+               HFS_px += px ;
+               HFS_py += py ;
+               HFS_pz += pz ;
+               HFS_E  += e  ;
+
+            } // i
 
 
-            //if ( EFlowNeutralHadron_Eta[i] > maxEta ) continue ;
-            if ( fabs(EFlowNeutralHadron_Eta[i]) > maxEta ) continue ;
+            if ( verbose ) printf( "  --- after photons:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
 
-            if ( useEtaTurnoff ) {
-               float prob = eta_acceptance( EFlowNeutralHadron_Eta[i] ) ;
-               float rn = tran.Uniform() ;
-               if ( rn > prob ) continue ;
-            }
 
-            HFS_px += px ;
-            HFS_py += py ;
-            HFS_pz += pz ;
-            HFS_E  += e  ;
 
-         } // i
 
-         if ( verbose ) printf( "  --- after NH    :  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
 
-   //==== EF Candidates +++++++++++++++++++++++++++++++++++++++++
+            for ( int i = 0; i < EFlowNeutralHadron_; i++ ) {
+
+               float px, py, pz, e ;
+
+               if ( fabs(EFlowNeutralHadron_Eta[i]) > 4.0 ) continue ;
+
+               if ( EFlowNeutralHadron_E[i] < minNHE ) continue ;
+
+               ptep_to_xyze( EFlowNeutralHadron_ET[i], EFlowNeutralHadron_Eta[i], EFlowNeutralHadron_Phi[i], 0.,
+                             px, py, pz, e ) ;
+
+               if ( e < 0 ) continue ;
+
+               if ( verbose ) printf( " %3d, nh  %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
+                 ei, i, EFlowNeutralHadron_ET[i], px, py, pz, e, EFlowNeutralHadron_Eta[i], EFlowNeutralHadron_Phi[i] ) ;
+
+               if ( verbose ) {
+                  double min_mc_dr = 99999. ;
+                  int mc_pi = -1 ;
+                  for ( int pi = 0; pi < Particle_ ; pi ++ ) {
+                     if  ( Particle_Status[pi] != 1 ) continue ;
+                     if ( fabs(Particle_PID[pi]) == 22 ) continue ;
+                     if ( fabs(Particle_Charge[pi]) != 0 ) continue ;
+                     float dr = calc_dr( EFlowNeutralHadron_Phi[i], Particle_Phi[pi], EFlowNeutralHadron_Eta[i], Particle_Eta[pi] ) ;
+                     if ( dr < min_mc_dr ) {
+                        min_mc_dr = dr ;
+                        mc_pi = pi ;
+                     }
+                  } // pi
+                  if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
+                     printf( " %3d, nh  %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f  PID = %d\n",
+                        ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi], Particle_PID[mc_pi] ) ;
+                     mcmatch_sum_px += Particle_Px[mc_pi] ;
+                     mcmatch_sum_py += Particle_Py[mc_pi] ;
+                     mcmatch_sum_pz += Particle_Pz[mc_pi] ;
+                  }
+               }
+
+
+               //if ( EFlowNeutralHadron_Eta[i] > maxEta ) continue ;
+               if ( fabs(EFlowNeutralHadron_Eta[i]) > maxEta ) continue ;
+
+               if ( useEtaTurnoff ) {
+                  float prob = eta_acceptance( EFlowNeutralHadron_Eta[i] ) ;
+                  float rn = tran.Uniform() ;
+                  if ( rn > prob ) continue ;
+               }
+
+               HFS_px += px ;
+               HFS_py += py ;
+               HFS_pz += pz ;
+               HFS_E  += e  ;
+
+            } // i
+
+            if ( verbose ) printf( "  --- after NH    :  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
+
+
+         }
+
 
       } else {
+
+   //==== Jets +++++++++++++++++++++++++++++++++++++++++
 
          for ( int i = 0; i < Jet_; i++ ) {
 
