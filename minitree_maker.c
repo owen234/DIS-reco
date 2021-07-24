@@ -19,6 +19,38 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    bool  towers_only_for_hfs = true ; //-- agrees better with fullsim
    //bool  towers_only_for_hfs = false ;
 
+   //float add_noise = false ;
+   float add_noise = true ;
+
+   //float noise_cartesian_component_width = 0.5 ; // GeV
+   //float noise_cartesian_component_width = 0.5 ; // GeV
+
+   //float noise_landau_mu = 0.1 ;
+   //float noise_landau_sigma = 0.2 ;
+   //float noise_prob = 0.3 ;
+
+   //float noise_landau_mu = 0.5 ;
+   //float noise_landau_sigma = 0.2 ;
+   //float noise_prob = 0.3 ;
+
+   //float noise_landau_mu = 0.8 ;
+   //float noise_landau_sigma = 0.2 ;
+   //float noise_prob = 0.3 ;
+
+   //float noise_landau_mu = 0.0 ;
+   //float noise_landau_sigma = 0.2 ;
+   //float noise_prob = 1.0 ;
+
+   float noise_landau_mu = 0.0 ;
+   float noise_landau_sigma = 0.1 ;
+   float noise_prob = 1.0 ;
+
+   //float noise_prob = 0.3 ;
+   //float noise_prob = 0.2 ;
+   //float noise_prob = 1.0 ;
+
+
+
    float gen_HFS_max_eta = 4.0 ;
    //float gen_HFS_max_eta = 9.0 ;
 
@@ -29,10 +61,13 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    bool useJets = false ;
 
   //--- nominal minimums
-     float minTrkPt = 0.30 ; //--- YR says 150-400 MeV
-     float minPhoE = 0.10 ; //--- YR says 50 MeV, use 100 MeV
+     float minTrkPt = 0.15 ; //--- YR says 150-400 MeV
+     float minPhoE = 0.05 ; //--- YR says 50 MeV, use 100 MeV
      float minNHE = 0.50 ; //--- YR says 500 MeV
 
+     //float minTrkPt = 0.30 ; //--- YR says 150-400 MeV
+     //float minPhoE = 0.10 ; //--- YR says 50 MeV, use 100 MeV
+     //float minNHE = 0.50 ; //--- YR says 500 MeV
 
 
    //float maxEta = 2.4 ;
@@ -128,6 +163,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float HFS_phi ;
    float HFS_theta ;
    float HFS_gamma ;
+   float HFS_sigma ;
 
    float gen_HFS_px ;
    float gen_HFS_py ;
@@ -138,6 +174,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float gen_HFS_eta ;
    float gen_HFS_phi ;
    float gen_HFS_theta ;
+   float gen_HFS_sigma ;
 
 
 
@@ -190,6 +227,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       tt_out -> Branch( "HFS_phi", &HFS_phi, "HFS_phi/F" ) ;
       tt_out -> Branch( "HFS_theta", &HFS_theta, "HFS_theta/F" ) ;
       tt_out -> Branch( "HFS_gamma", &HFS_gamma, "HFS_gamma/F" ) ;
+      tt_out -> Branch( "HFS_sigma", &HFS_sigma, "HFS_sigma/F" ) ; // ***
       tt_out -> Branch( "gen_HFS_px", &gen_HFS_px, "gen_HFS_px/F" ) ;
       tt_out -> Branch( "gen_HFS_py", &gen_HFS_py, "gen_HFS_py/F" ) ;
       tt_out -> Branch( "gen_HFS_pz", &gen_HFS_pz, "gen_HFS_pz/F" ) ;
@@ -198,6 +236,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       tt_out -> Branch( "gen_HFS_eta", &gen_HFS_eta, "gen_HFS_eta/F" ) ;
       tt_out -> Branch( "gen_HFS_phi", &gen_HFS_phi, "gen_HFS_phi/F" ) ;
       tt_out -> Branch( "gen_HFS_theta", &gen_HFS_theta, "gen_HFS_theta/F" ) ;
+      tt_out -> Branch( "gen_HFS_sigma", &gen_HFS_sigma, "gen_HFS_sigma/F" ) ;
       tt_out -> Branch( "beam_electron_energy", &beam_electron_energy, "beam_electron_energy/F" ) ;
       tt_out -> Branch( "beam_proton_energy", &beam_proton_energy, "beam_proton_energy/F" ) ;
    }
@@ -646,6 +685,26 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
       } // useJets?
 
+      if ( add_noise ) {
+         float urn = tran.Uniform() ;
+         if ( urn < noise_prob ) {
+
+            //float grn_px = tran.Gaus( 0., noise_cartesian_component_width ) ;
+            //float grn_py = tran.Gaus( 0., noise_cartesian_component_width ) ;
+            //float grn_pz = tran.Gaus( 0., noise_cartesian_component_width ) ;
+
+            float grn_px = tran.Landau( noise_landau_mu, noise_landau_sigma  ) ;
+            float grn_py = tran.Landau( noise_landau_mu, noise_landau_sigma  ) ;
+            float grn_pz = tran.Landau( noise_landau_mu, noise_landau_sigma  ) ;
+
+
+            float grn_e = sqrt( grn_px*grn_px + grn_py*grn_py + grn_pz*grn_pz ) ;
+            HFS_px += grn_px ;
+            HFS_py += grn_py ;
+            HFS_pz += grn_pz ;
+            HFS_E += grn_e ;
+         }
+      }
 
       if ( verbose ) printf( " %3d : reco  sums :  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", ei, HFS_px, HFS_py, HFS_pz, HFS_E ) ;
       if ( verbose ) printf( " %3d : gen   sums :  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f\n", ei, gen_HFS_px, gen_HFS_py, gen_HFS_pz, gen_HFS_e ) ;
@@ -840,6 +899,9 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
            h_x_rec_over_true_y_50_80_da -> Fill( x_da / gen_x ) ;
        }
 
+     //-- for convenience
+       HFS_sigma = HFS_E - HFS_pz ;
+       gen_HFS_sigma = gen_HFS_e - gen_HFS_pz ;
 
        tt_out -> Fill() ;
 
