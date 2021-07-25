@@ -41,8 +41,12 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    //float noise_landau_sigma = 0.2 ;
    //float noise_prob = 1.0 ;
 
+   //float noise_landau_mu = 0.0 ;
+   //float noise_landau_sigma = 0.1 ;
+   //float noise_prob = 1.0 ;
+
    float noise_landau_mu = 0.0 ;
-   float noise_landau_sigma = 0.1 ;
+   float noise_landau_sigma = 0.05 ;
    float noise_prob = 1.0 ;
 
    //float noise_prob = 0.3 ;
@@ -697,8 +701,12 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
             float grn_py = tran.Landau( noise_landau_mu, noise_landau_sigma  ) ;
             float grn_pz = tran.Landau( noise_landau_mu, noise_landau_sigma  ) ;
 
+            if ( tran.Uniform() < 0.5 ) { grn_px = -1*grn_px ; }
+            if ( tran.Uniform() < 0.5 ) { grn_py = -1*grn_py ; }
+            if ( tran.Uniform() < 0.5 ) { grn_pz = -1*grn_pz ; }
 
             float grn_e = sqrt( grn_px*grn_px + grn_py*grn_py + grn_pz*grn_pz ) ;
+
             HFS_px += grn_px ;
             HFS_py += grn_py ;
             HFS_pz += grn_pz ;
