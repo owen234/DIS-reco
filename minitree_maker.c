@@ -16,7 +16,9 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    TRandom2 tran(12345) ;
 
-   bool  towers_only_for_hfs = true ; //-- agrees better with fullsim
+   bool write_mc_particle_file = false ;
+
+   bool  towers_only_for_hfs = true ; //-- agrees better with fullsim for H1
    //bool  towers_only_for_hfs = false ;
 
    //float add_noise = false ;
@@ -25,22 +27,6 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    //float noise_cartesian_component_width = 0.5 ; // GeV
    //float noise_cartesian_component_width = 0.5 ; // GeV
 
-   //float noise_landau_mu = 0.1 ;
-   //float noise_landau_sigma = 0.2 ;
-   //float noise_prob = 0.3 ;
-
-   //float noise_landau_mu = 0.5 ;
-   //float noise_landau_sigma = 0.2 ;
-   //float noise_prob = 0.3 ;
-
-   //float noise_landau_mu = 0.8 ;
-   //float noise_landau_sigma = 0.2 ;
-   //float noise_prob = 0.3 ;
-
-   //float noise_landau_mu = 0.0 ;
-   //float noise_landau_sigma = 0.2 ;
-   //float noise_prob = 1.0 ;
-
    //float noise_landau_mu = 0.0 ;
    //float noise_landau_sigma = 0.1 ;
    //float noise_prob = 1.0 ;
@@ -48,10 +34,6 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float noise_landau_mu = 0.0 ;
    float noise_landau_sigma = 0.05 ;
    float noise_prob = 1.0 ;
-
-   //float noise_prob = 0.3 ;
-   //float noise_prob = 0.2 ;
-   //float noise_prob = 1.0 ;
 
 
 
@@ -169,6 +151,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float HFS_gamma ;
    float HFS_sigma ;
 
+  //--- everything
    float gen_HFS_px ;
    float gen_HFS_py ;
    float gen_HFS_pz ;
@@ -180,6 +163,37 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
    float gen_HFS_theta ;
    float gen_HFS_sigma ;
 
+  //--- charged track component
+   float gen_c_HFS_px ;
+   float gen_c_HFS_py ;
+   float gen_c_HFS_pz ;
+   float gen_c_HFS_e ;
+   float gen_c_HFS_pt ;
+   float gen_c_HFS_eta ;
+
+  //--- photon component
+   float gen_p_HFS_px ;
+   float gen_p_HFS_py ;
+   float gen_p_HFS_pz ;
+   float gen_p_HFS_e ;
+   float gen_p_HFS_pt ;
+   float gen_p_HFS_eta ;
+
+  //--- neutral hadron component
+   float gen_n_HFS_px ;
+   float gen_n_HFS_py ;
+   float gen_n_HFS_pz ;
+   float gen_n_HFS_e ;
+   float gen_n_HFS_pt ;
+   float gen_n_HFS_eta ;
+
+  //--- invisible hadron component
+   float gen_i_HFS_px ;
+   float gen_i_HFS_py ;
+   float gen_i_HFS_pz ;
+   float gen_i_HFS_e ;
+   float gen_i_HFS_pt ;
+   float gen_i_HFS_eta ;
 
 
    tt_out -> Branch( "Q2_e", &Q2_e, "Q2_e/F" ) ; // ***
@@ -232,12 +246,42 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       tt_out -> Branch( "HFS_theta", &HFS_theta, "HFS_theta/F" ) ;
       tt_out -> Branch( "HFS_gamma", &HFS_gamma, "HFS_gamma/F" ) ;
       tt_out -> Branch( "HFS_sigma", &HFS_sigma, "HFS_sigma/F" ) ; // ***
+
       tt_out -> Branch( "gen_HFS_px", &gen_HFS_px, "gen_HFS_px/F" ) ;
       tt_out -> Branch( "gen_HFS_py", &gen_HFS_py, "gen_HFS_py/F" ) ;
       tt_out -> Branch( "gen_HFS_pz", &gen_HFS_pz, "gen_HFS_pz/F" ) ;
       tt_out -> Branch( "gen_HFS_e", &gen_HFS_e, "gen_HFS_e/F" ) ;
       tt_out -> Branch( "gen_HFS_pt", &gen_HFS_pt, "gen_HFS_pt/F" ) ;
       tt_out -> Branch( "gen_HFS_eta", &gen_HFS_eta, "gen_HFS_eta/F" ) ;
+
+      tt_out -> Branch( "gen_c_HFS_px", &gen_c_HFS_px, "gen_c_HFS_px/F" ) ;
+      tt_out -> Branch( "gen_c_HFS_py", &gen_c_HFS_py, "gen_c_HFS_py/F" ) ;
+      tt_out -> Branch( "gen_c_HFS_pz", &gen_c_HFS_pz, "gen_c_HFS_pz/F" ) ;
+      tt_out -> Branch( "gen_c_HFS_e", &gen_c_HFS_e, "gen_c_HFS_e/F" ) ;
+      tt_out -> Branch( "gen_c_HFS_pt", &gen_c_HFS_pt, "gen_c_HFS_pt/F" ) ;
+      tt_out -> Branch( "gen_c_HFS_eta", &gen_c_HFS_eta, "gen_c_HFS_eta/F" ) ;
+
+      tt_out -> Branch( "gen_p_HFS_px", &gen_p_HFS_px, "gen_p_HFS_px/F" ) ;
+      tt_out -> Branch( "gen_p_HFS_py", &gen_p_HFS_py, "gen_p_HFS_py/F" ) ;
+      tt_out -> Branch( "gen_p_HFS_pz", &gen_p_HFS_pz, "gen_p_HFS_pz/F" ) ;
+      tt_out -> Branch( "gen_p_HFS_e", &gen_p_HFS_e, "gen_p_HFS_e/F" ) ;
+      tt_out -> Branch( "gen_p_HFS_pt", &gen_p_HFS_pt, "gen_p_HFS_pt/F" ) ;
+      tt_out -> Branch( "gen_p_HFS_eta", &gen_p_HFS_eta, "gen_p_HFS_eta/F" ) ;
+
+      tt_out -> Branch( "gen_n_HFS_px", &gen_n_HFS_px, "gen_n_HFS_px/F" ) ;
+      tt_out -> Branch( "gen_n_HFS_py", &gen_n_HFS_py, "gen_n_HFS_py/F" ) ;
+      tt_out -> Branch( "gen_n_HFS_pz", &gen_n_HFS_pz, "gen_n_HFS_pz/F" ) ;
+      tt_out -> Branch( "gen_n_HFS_e", &gen_n_HFS_e, "gen_n_HFS_e/F" ) ;
+      tt_out -> Branch( "gen_n_HFS_pt", &gen_n_HFS_pt, "gen_n_HFS_pt/F" ) ;
+      tt_out -> Branch( "gen_n_HFS_eta", &gen_n_HFS_eta, "gen_n_HFS_eta/F" ) ;
+
+      tt_out -> Branch( "gen_i_HFS_px", &gen_i_HFS_px, "gen_i_HFS_px/F" ) ;
+      tt_out -> Branch( "gen_i_HFS_py", &gen_i_HFS_py, "gen_i_HFS_py/F" ) ;
+      tt_out -> Branch( "gen_i_HFS_pz", &gen_i_HFS_pz, "gen_i_HFS_pz/F" ) ;
+      tt_out -> Branch( "gen_i_HFS_e", &gen_i_HFS_e, "gen_i_HFS_e/F" ) ;
+      tt_out -> Branch( "gen_i_HFS_pt", &gen_i_HFS_pt, "gen_i_HFS_pt/F" ) ;
+      tt_out -> Branch( "gen_i_HFS_eta", &gen_i_HFS_eta, "gen_i_HFS_eta/F" ) ;
+
       tt_out -> Branch( "gen_HFS_phi", &gen_HFS_phi, "gen_HFS_phi/F" ) ;
       tt_out -> Branch( "gen_HFS_theta", &gen_HFS_theta, "gen_HFS_theta/F" ) ;
       tt_out -> Branch( "gen_HFS_sigma", &gen_HFS_sigma, "gen_HFS_sigma/F" ) ;
@@ -248,43 +292,19 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
    gDirectory -> Delete( "h*" ) ;
 
-   TH1F* h_gen_q2 = new TH1F("h_gen_g2","Generator Q2", 80, 0., 2000. ) ;
-   TH1F* h_gen_x  = new TH1F("h_gen_x","Generator x", 80, -0.1, 1.1 ) ;
-   TH1F* h_gen_y  = new TH1F("h_gen_y","Generator y", 80, -0.1, 1.1 ) ;
-
-   TH2F* h_q2_sigma_vs_gen = new TH2F("h_q2_sigma_vs_gen","Q2: Sigma vs gen",80, 0., 2000., 80, 0., 2000.) ;
-   TH2F* h_x_sigma_vs_gen = new TH2F("h_x_sigma_vs_gen","x: Sigma vs gen", 80, -0.1, 1.1 , 80, -0.1, 1.1 ) ;
-   TH2F* h_y_sigma_vs_gen = new TH2F("h_y_sigma_vs_gen","y: Sigma vs gen", 80, -0.1, 1.1 , 80, -0.1, 1.1 ) ;
-
-   TH1F* h_x_rec_over_true_y_01_05_sigma = new TH1F("h_x_rec_over_true_y_01_05_sigma","x/xtrue, ytrue [0.01,0.05], Sigma", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_05_10_sigma = new TH1F("h_x_rec_over_true_y_05_10_sigma","x/xtrue, ytrue [0.05,0.10], Sigma", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_10_20_sigma = new TH1F("h_x_rec_over_true_y_10_20_sigma","x/xtrue, ytrue [0.10,0.20], Sigma", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_20_50_sigma = new TH1F("h_x_rec_over_true_y_20_50_sigma","x/xtrue, ytrue [0.20,0.50], Sigma", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_50_80_sigma = new TH1F("h_x_rec_over_true_y_50_80_sigma","x/xtrue, ytrue [0.50,0.80], Sigma", 80, 0., 2.) ;
-
-   TH1F* h_x_rec_over_true_y_01_05_e = new TH1F("h_x_rec_over_true_y_01_05_e","x/xtrue, ytrue [0.01,0.05], ele", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_05_10_e = new TH1F("h_x_rec_over_true_y_05_10_e","x/xtrue, ytrue [0.05,0.10], ele", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_10_20_e = new TH1F("h_x_rec_over_true_y_10_20_e","x/xtrue, ytrue [0.10,0.20], ele", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_20_50_e = new TH1F("h_x_rec_over_true_y_20_50_e","x/xtrue, ytrue [0.20,0.50], ele", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_50_80_e = new TH1F("h_x_rec_over_true_y_50_80_e","x/xtrue, ytrue [0.50,0.80], ele", 80, 0., 2.) ;
-
-   TH1F* h_x_rec_over_true_y_01_05_h = new TH1F("h_x_rec_over_true_y_01_05_h","x/xtrue, ytrue [0.01,0.05], had", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_05_10_h = new TH1F("h_x_rec_over_true_y_05_10_h","x/xtrue, ytrue [0.05,0.10], had", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_10_20_h = new TH1F("h_x_rec_over_true_y_10_20_h","x/xtrue, ytrue [0.10,0.20], had", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_20_50_h = new TH1F("h_x_rec_over_true_y_20_50_h","x/xtrue, ytrue [0.20,0.50], had", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_50_80_h = new TH1F("h_x_rec_over_true_y_50_80_h","x/xtrue, ytrue [0.50,0.80], had", 80, 0., 2.) ;
-
-   TH1F* h_x_rec_over_true_y_01_05_da = new TH1F("h_x_rec_over_true_y_01_05_da","x/xtrue, ytrue [0.01,0.05], DA", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_05_10_da = new TH1F("h_x_rec_over_true_y_05_10_da","x/xtrue, ytrue [0.05,0.10], DA", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_10_20_da = new TH1F("h_x_rec_over_true_y_10_20_da","x/xtrue, ytrue [0.10,0.20], DA", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_20_50_da = new TH1F("h_x_rec_over_true_y_20_50_da","x/xtrue, ytrue [0.20,0.50], DA", 80, 0., 2.) ;
-   TH1F* h_x_rec_over_true_y_50_80_da = new TH1F("h_x_rec_over_true_y_50_80_da","x/xtrue, ytrue [0.50,0.80], DA", 80, 0., 2.) ;
 
    Long64_t nentries = fChain->GetEntries() ;
 
    printf("\n\n Found %lld entries in input file.\n\n", nentries ) ;
 
    if ( maxEvt > 0 ) { nentries = maxEvt ; }
+
+   FILE* ofp(0x0) ;
+   TDatabasePDG* pdg = new TDatabasePDG() ;
+   pdg->ReadPDGTable() ;
+   if ( write_mc_particle_file ) {
+      ofp = fopen( "mc-particles.txt", "w" ) ;
+   }
 
    Long64_t nbytes = 0, nb = 0;
    for (Long64_t jentry=0; jentry<nentries;jentry++) {
@@ -307,6 +327,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       gene_px = 0. ;
       gene_py = 0. ;
       gene_pz = 0. ;
+
       gen_e_pt = 0. ;
       gen_e_eta = 0. ;
       gen_e_phi = 0. ;
@@ -317,6 +338,27 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       gen_HFS_py = 0. ;
       gen_HFS_pz = 0. ;
       gen_HFS_e = 0. ;
+
+      gen_c_HFS_px = 0. ;
+      gen_c_HFS_py = 0. ;
+      gen_c_HFS_pz = 0. ;
+      gen_c_HFS_e = 0. ;
+
+      gen_p_HFS_px = 0. ;
+      gen_p_HFS_py = 0. ;
+      gen_p_HFS_pz = 0. ;
+      gen_p_HFS_e = 0. ;
+
+      gen_n_HFS_px = 0. ;
+      gen_n_HFS_py = 0. ;
+      gen_n_HFS_pz = 0. ;
+      gen_n_HFS_e = 0. ;
+
+      gen_i_HFS_px = 0. ;
+      gen_i_HFS_py = 0. ;
+      gen_i_HFS_pz = 0. ;
+      gen_i_HFS_e = 0. ;
+
 
       for ( int pi = 0; pi < Particle_ ; pi ++ ) {
 
@@ -329,6 +371,15 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
             beam_proton_energy = Particle_E[pi] ;
          }
          if ( Particle_Status[pi] == 1 ) {
+
+            TParticlePDG* pdg_particle = pdg -> GetParticle( Particle_PID[pi] ) ;
+            char pdg_name[100];
+            float pdg_charge(0.) ;
+            if ( pdg_particle != 0x0 ) {
+               sprintf( pdg_name, "%s", pdg_particle->GetName() ) ;
+               pdg_charge = pdg_particle->Charge() / (3.) ;
+            }
+            if ( write_mc_particle_file ) fprintf( ofp, "  %9d :  %3d :  %9.6f  : %s\n", Particle_PID[pi], Particle_Charge[pi], Particle_Mass[pi], pdg_name ) ;
 
             if ( Particle_PID[pi] == 11 && gen_e_e < 0. ) {
 
@@ -346,13 +397,43 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
             } else {
 
                if ( fabs(Particle_Eta[pi]) < gen_HFS_max_eta ) {
+
                   gen_HFS_px += Particle_Px[pi] ;
                   gen_HFS_py += Particle_Py[pi] ;
                   gen_HFS_pz += Particle_Pz[pi] ;
                   gen_HFS_e  += Particle_E[pi] ;
+
+                  if ( pdg_charge != 0 ) {
+                     gen_c_HFS_px += Particle_Px[pi] ;
+                     gen_c_HFS_py += Particle_Py[pi] ;
+                     gen_c_HFS_pz += Particle_Pz[pi] ;
+                     gen_c_HFS_e  += Particle_E[pi] ;
+                  } else if ( Particle_PID[pi] == 22 ) {
+                     gen_p_HFS_px += Particle_Px[pi] ;
+                     gen_p_HFS_py += Particle_Py[pi] ;
+                     gen_p_HFS_pz += Particle_Pz[pi] ;
+                     gen_p_HFS_e  += Particle_E[pi] ;
+                  } else if ( abs(Particle_PID[pi]) == 12 || abs(Particle_PID[pi]) == 14 || abs(Particle_PID[pi]) == 16 ) {
+                     gen_i_HFS_px += Particle_Px[pi] ;
+                     gen_i_HFS_py += Particle_Py[pi] ;
+                     gen_i_HFS_pz += Particle_Pz[pi] ;
+                     gen_i_HFS_e  += Particle_E[pi] ;
+                  } else {
+                     gen_n_HFS_px += Particle_Px[pi] ;
+                     gen_n_HFS_py += Particle_Py[pi] ;
+                     gen_n_HFS_pz += Particle_Pz[pi] ;
+                     gen_n_HFS_e  += Particle_E[pi] ;
+                  }
+
                   if ( verbose ) {
-                     printf("    MC sum:  %3d :  %7d   :  px,py,pz = %7.2f, %7.2f, %7.2f    pt = %7.2f, eta = %8.3f, phi = %8.3f\n",
-                       pi, Particle_PID[pi], Particle_Px[pi], Particle_Py[pi], Particle_Pz[pi], Particle_PT[pi], Particle_Eta[pi], Particle_Phi[pi] ) ;
+                     char q[10] ;
+                     if ( pdg_charge != 0 ) {
+                        sprintf( q, "%+2.0f", pdg_charge ) ;
+                     } else {
+                        sprintf( q, " 0" ) ;
+                     }
+                     printf("    MC sum:  %3d :  %7d  %13s  %2s :  px,py,pz = %7.2f, %7.2f, %7.2f    pt = %7.2f, eta = %8.3f, phi = %8.3f\n",
+                       pi, Particle_PID[pi], pdg_name, q, Particle_Px[pi], Particle_Py[pi], Particle_Pz[pi], Particle_PT[pi], Particle_Eta[pi], Particle_Phi[pi] ) ;
                   }
                }
 
@@ -391,9 +472,6 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
 
 
 
-      h_gen_q2 -> Fill( gen_Q2 ) ;
-      h_gen_y -> Fill( gen_y ) ;
-      h_gen_x -> Fill( gen_x ) ;
 
 
 
@@ -736,6 +814,23 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
          gen_HFS_theta = atan2( gen_HFS_pt, gen_HFS_pz ) ;
          gen_HFS_phi = atan2( gen_HFS_py, gen_HFS_px ) ;
          gen_HFS_eta = -1. * log( tan( gen_HFS_theta/2. ) ) ;
+
+         gen_c_HFS_pt = sqrt( gen_c_HFS_px * gen_c_HFS_px + gen_c_HFS_py * gen_c_HFS_py ) ;
+         float gen_c_HFS_theta = atan2( gen_c_HFS_pt, gen_c_HFS_pz ) ;
+         gen_c_HFS_eta = -1. * log( tan( gen_c_HFS_theta/2. ) ) ;
+
+         gen_p_HFS_pt = sqrt( gen_p_HFS_px * gen_p_HFS_px + gen_p_HFS_py * gen_p_HFS_py ) ;
+         float gen_p_HFS_theta = atan2( gen_p_HFS_pt, gen_p_HFS_pz ) ;
+         gen_p_HFS_eta = -1. * log( tan( gen_p_HFS_theta/2. ) ) ;
+
+         gen_i_HFS_pt = sqrt( gen_i_HFS_px * gen_i_HFS_px + gen_i_HFS_py * gen_i_HFS_py ) ;
+         float gen_i_HFS_theta = atan2( gen_i_HFS_pt, gen_i_HFS_pz ) ;
+         gen_i_HFS_eta = -1. * log( tan( gen_i_HFS_theta/2. ) ) ;
+
+         gen_n_HFS_pt = sqrt( gen_n_HFS_px * gen_n_HFS_px + gen_n_HFS_py * gen_n_HFS_py ) ;
+         float gen_n_HFS_theta = atan2( gen_n_HFS_pt, gen_n_HFS_pz ) ;
+         gen_n_HFS_eta = -1. * log( tan( gen_n_HFS_theta/2. ) ) ;
+
       }
 
 
@@ -868,44 +963,6 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
       }
 
 
-       h_q2_sigma_vs_gen -> Fill( gen_Q2, Q2_sigma ) ;
-       h_x_sigma_vs_gen -> Fill( gen_x, x_sigma ) ;
-       h_y_sigma_vs_gen -> Fill( gen_y, y_sigma ) ;
-
-       if ( gen_y > 0.01 && gen_y <= 0.05 ) {
-           h_x_rec_over_true_y_01_05_sigma -> Fill( x_sigma / gen_x ) ;
-           h_x_rec_over_true_y_01_05_e -> Fill( x_e / gen_x ) ;
-           h_x_rec_over_true_y_01_05_h -> Fill( x_h / gen_x ) ;
-           h_x_rec_over_true_y_01_05_da -> Fill( x_da / gen_x ) ;
-       }
-
-       if ( gen_y > 0.05 && gen_y <= 0.10 ) {
-           h_x_rec_over_true_y_05_10_sigma -> Fill( x_sigma / gen_x ) ;
-           h_x_rec_over_true_y_05_10_e -> Fill( x_e / gen_x ) ;
-           h_x_rec_over_true_y_05_10_h -> Fill( x_h / gen_x ) ;
-           h_x_rec_over_true_y_05_10_da -> Fill( x_da / gen_x ) ;
-       }
-
-       if ( gen_y > 0.10 && gen_y <= 0.20 ) {
-           h_x_rec_over_true_y_10_20_sigma -> Fill( x_sigma / gen_x ) ;
-           h_x_rec_over_true_y_10_20_e -> Fill( x_e / gen_x ) ;
-           h_x_rec_over_true_y_10_20_h -> Fill( x_h / gen_x ) ;
-           h_x_rec_over_true_y_10_20_da -> Fill( x_da / gen_x ) ;
-       }
-
-       if ( gen_y > 0.20 && gen_y <= 0.50 ) {
-           h_x_rec_over_true_y_20_50_sigma -> Fill( x_sigma / gen_x ) ;
-           h_x_rec_over_true_y_20_50_e -> Fill( x_e / gen_x ) ;
-           h_x_rec_over_true_y_20_50_h -> Fill( x_h / gen_x ) ;
-           h_x_rec_over_true_y_20_50_da -> Fill( x_da / gen_x ) ;
-       }
-
-       if ( gen_y > 0.50 && gen_y <= 0.80 ) {
-           h_x_rec_over_true_y_50_80_sigma -> Fill( x_sigma / gen_x ) ;
-           h_x_rec_over_true_y_50_80_e -> Fill( x_e / gen_x ) ;
-           h_x_rec_over_true_y_50_80_h -> Fill( x_h / gen_x ) ;
-           h_x_rec_over_true_y_50_80_da -> Fill( x_da / gen_x ) ;
-       }
 
      //-- for convenience
        HFS_sigma = HFS_E - HFS_pz ;
@@ -914,6 +971,7 @@ void minitree_maker::Loop( bool verbose, int maxEvt )
        tt_out -> Fill() ;
 
    } // jentry
+
 
    printf("\n\n Done.\n\n") ;
 
