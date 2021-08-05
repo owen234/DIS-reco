@@ -30,6 +30,7 @@ Instructions are here: https://pythia.org/releases/
 Here's what I did.
 
 ```
+cd <where you want to put all this stuff>
 mkdir pythia
 cd pythia
 
