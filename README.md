@@ -14,7 +14,14 @@ make a simple reduced TTree with the root c++ code here and then analyze it with
 have to do all of the below in the EIC virtual machine you use to run the full simulation.  You should be able to install
 Pythia and Delphes directly on your laptop.  It worked for me on my Mac.
 
+**0.  Setup Root environment in shell**
 
+Go to your root installation location and do
+```
+cd <your root dir>
+cd bin
+source thisroot.sh
+```
 
 **1. Install Pythia**
 
