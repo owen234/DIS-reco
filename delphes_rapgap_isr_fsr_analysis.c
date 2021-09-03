@@ -66,6 +66,10 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
    float gen_hfs_Sigma_with_rad_eta_lt_4  ;
    float gen_hfs_T_with_rad_eta_lt_4  ;
 
+   float from_tlv_gen_Q2 ;
+   float from_tlv_gen_x ;
+   float from_tlv_gen_y ;
+
    char bname[100] ;
 
 
@@ -120,6 +124,11 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
    tt_out -> Branch( "gen_hfs_Sigma_with_rad_eta_lt_4", &gen_hfs_Sigma_with_rad_eta_lt_4, "gen_hfs_Sigma_with_rad_eta_lt_4/F" ) ;
    tt_out -> Branch( "gen_hfs_T_with_rad_eta_lt_4", &gen_hfs_T_with_rad_eta_lt_4, "gen_hfs_T_with_rad_eta_lt_4/F" ) ;
+
+   tt_out -> Branch( "from_tlv_gen_Q2", &from_tlv_gen_Q2, "from_tlv_gen_Q2/F" ) ;
+   tt_out -> Branch( "from_tlv_gen_x", &from_tlv_gen_x, "from_tlv_gen_x/F" ) ;
+   tt_out -> Branch( "from_tlv_gen_y", &from_tlv_gen_y, "from_tlv_gen_y/F" ) ;
+
 
    TDatabasePDG* pdg = new TDatabasePDG() ;
    pdg->ReadPDGTable() ;
@@ -215,6 +224,10 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
       int sef_pi = -1 ;
       int rad_gam_pi = -1 ;
 
+      int post_isr_beam_e_pi = -1 ;
+      int pre_fsr_scattered_e_pi = -1 ;
+      int beam_p_pi = -1 ;
+
       has_isr = false ;
       has_fsr = false ;
 
@@ -222,7 +235,16 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          if ( Particle_PID[pi] == 2212 && Particle_Status[pi] == 4 ) {
             beam_p_e = escale * Particle_E[pi] ;
+            beam_p_pi = pi ;
             continue ;
+         }
+
+         if ( Particle_PID[pi] == 23 ) {
+            if ( Particle_M1[pi] >= 0 ) {
+               if ( abs(Particle_PID[ Particle_M1[pi] ]) == 11 ) {
+                  post_isr_beam_e_pi = Particle_M1[pi] ;
+               }
+            }
          }
 
          if ( Particle_PID[pi] == 22 ) {
@@ -239,6 +261,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
                   has_isr = true ;
                } else {
                   has_fsr = true ;
+                  pre_fsr_scattered_e_pi = mom_pi ;
                }
             }
          }
@@ -260,6 +283,10 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
          }
 
       } // pi
+
+      if ( !has_fsr && pre_fsr_scattered_e_pi < 0 ) {
+         pre_fsr_scattered_e_pi = sef_pi ;
+      }
 
 
 
@@ -381,7 +408,28 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
          printf(" %4d : %3d be0_pz = %9.3f , %3d bef_pz = %9.3f , diff = %9.3f\n", ei, be0_pi, be0_pz, bef_pi, bef_pz, be0_pz-bef_pz ) ;
          printf(" %4d : %3d se0_pt = %9.3f , %3d sef_pt = %9.3f , diff = %9.3f\n", ei, se0_pi, se0_pt, sef_pi, sef_pt, se0_pt-sef_pt ) ;
          printf(" %4d :     HFS pt = %9.3f , HFS Sigma = %9.3f\n", ei, gen_hfs_T_no_rad, gen_hfs_Sigma_no_rad ) ;
+         printf(" %4d :  beam_p_pi = %3d   post_isr_beam_e_pi = %3d   pre_fsr_scattered_e_pi = %3d\n", ei, beam_p_pi, post_isr_beam_e_pi, pre_fsr_scattered_e_pi ) ;
       }
+
+
+
+     //--- Calculate everything using post ISR / pre FSR 4-vectors
+
+      TLorentzVector tlv_p( Particle_Px[beam_p_pi], Particle_Py[beam_p_pi], Particle_Pz[beam_p_pi], Particle_E[beam_p_pi] ) ;
+      TLorentzVector tlv_l( Particle_Px[post_isr_beam_e_pi], Particle_Py[post_isr_beam_e_pi], Particle_Pz[post_isr_beam_e_pi], Particle_E[post_isr_beam_e_pi] ) ;
+      TLorentzVector tlv_lprime( Particle_Px[pre_fsr_scattered_e_pi], Particle_Py[pre_fsr_scattered_e_pi], Particle_Pz[pre_fsr_scattered_e_pi], Particle_E[pre_fsr_scattered_e_pi] ) ;
+
+      tlv_p = escale * tlv_p ;
+      tlv_l = escale * tlv_l ;
+      tlv_lprime = escale * tlv_lprime ;
+
+      TLorentzVector tlv_q = tlv_l - tlv_lprime ;
+
+      from_tlv_gen_Q2 = -1 * tlv_q * tlv_q ;
+      from_tlv_gen_y = ( tlv_p * tlv_q ) / ( tlv_p * tlv_l ) ;
+      from_tlv_gen_x = -1 * ( tlv_q * tlv_q ) / ( 2. * tlv_p * tlv_q ) ;
+
+
 
       {
 
@@ -529,24 +577,27 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
       if ( verbose ) {
 
-         printf("                    " ) ;
+         printf("                                   " ) ;
          for ( int i=0; i<nmeth; i++ ) { printf("   %6d   ", i) ; }
          printf("\n") ;
 
 
          printf("  %4d :  gen_y   : ", ei ) ;
+         printf("  %9.5f  | ", from_tlv_gen_y ) ;
          for ( int i=0; i<nmeth; i++ ) {
             printf("  %9.5f ", gen_y[i] ) ;
          } // i
          printf("\n") ;
 
          printf("  %4d :  gen_x   : ", ei ) ;
+         printf("  %9.5f  | ", from_tlv_gen_x ) ;
          for ( int i=0; i<nmeth; i++ ) {
             printf("  %9.5f ", gen_x[i] ) ;
          } // i
          printf("\n") ;
 
          printf("  %4d :  gen_Q2  : ", ei ) ;
+         printf("  %9.1f  | ", from_tlv_gen_Q2 ) ;
          for ( int i=0; i<nmeth; i++ ) {
             printf("  %9.1f ", gen_Q2[i] ) ;
          } // i
