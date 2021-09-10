@@ -19,8 +19,8 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
    float minPhoE = 0.05 ; //--- YR says 50 MeV
    float minNHE = 0.50 ; //--- YR says 500 MeV
 
-   //bool save_only_dnn_inputs = true ;
-   bool save_only_dnn_inputs = false ;
+   bool save_only_dnn_inputs = true ;
+   //bool save_only_dnn_inputs = false ;
 
    bool recombine_fsr_gamma = true ;
    //bool recombine_fsr_gamma = false ;
@@ -166,30 +166,8 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
    char bname[100] ;
 
 
+
    if ( ! save_only_dnn_inputs ) {
-
-      sprintf( bname, "gen_y[%d]/F", nmeth ) ;
-      tt_out -> Branch( "gen_y", &gen_y, bname ) ;
-
-      sprintf( bname, "gen_x[%d]/F", nmeth ) ;
-      tt_out -> Branch( "gen_x", &gen_x, bname ) ;
-
-      sprintf( bname, "gen_Q2[%d]/F", nmeth ) ;
-      tt_out -> Branch( "gen_Q2", &gen_Q2, bname ) ;
-
-
-
-      sprintf( bname, "obs_y[%d]/F", nmeth ) ;
-      tt_out -> Branch( "obs_y", &obs_y, bname ) ;
-
-      sprintf( bname, "obs_x[%d]/F", nmeth ) ;
-      tt_out -> Branch( "obs_x", &obs_x, bname ) ;
-
-      sprintf( bname, "obs_Q2[%d]/F", nmeth ) ;
-      tt_out -> Branch( "obs_Q2", &obs_Q2, bname ) ;
-
-
-
 
       tt_out -> Branch( "be0_e", &be0_e, "be0_e/F" ) ;
       tt_out -> Branch( "be0_pt", &be0_pt, "be0_pt/F" ) ;
@@ -260,10 +238,33 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
       tt_out -> Branch( "isr_gamma_angle", &isr_gamma_angle, "isr_gamma_angle/F" ) ;
       tt_out -> Branch( "isr_gamma_eta", &isr_gamma_eta, "isr_gamma_eta/F" ) ;
 
-      tt_out -> Branch( "beam_e_e", &beam_e_e, "beam_e_e/F" ) ;
-      tt_out -> Branch( "beam_p_e", &beam_p_e, "beam_p_e/F" ) ;
-
    } // not save only dnn inputs?
+
+
+   tt_out -> Branch( "beam_e_e", &beam_e_e, "beam_e_e/F" ) ;
+   tt_out -> Branch( "beam_p_e", &beam_p_e, "beam_p_e/F" ) ;
+
+
+   sprintf( bname, "gen_y[%d]/F", nmeth ) ;
+   tt_out -> Branch( "gen_y", &gen_y, bname ) ;
+
+   sprintf( bname, "gen_x[%d]/F", nmeth ) ;
+   tt_out -> Branch( "gen_x", &gen_x, bname ) ;
+
+   sprintf( bname, "gen_Q2[%d]/F", nmeth ) ;
+   tt_out -> Branch( "gen_Q2", &gen_Q2, bname ) ;
+
+
+
+   sprintf( bname, "obs_y[%d]/F", nmeth ) ;
+   tt_out -> Branch( "obs_y", &obs_y, bname ) ;
+
+   sprintf( bname, "obs_x[%d]/F", nmeth ) ;
+   tt_out -> Branch( "obs_x", &obs_x, bname ) ;
+
+   sprintf( bname, "obs_Q2[%d]/F", nmeth ) ;
+   tt_out -> Branch( "obs_Q2", &obs_Q2, bname ) ;
+
 
    tt_out -> Branch( "has_isr", &has_isr, "has_isr/B" ) ;
    tt_out -> Branch( "has_fsr", &has_fsr, "has_fsr/B" ) ;
@@ -339,7 +340,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
                sprintf( pdg_name, "%s", pdg_particle->GetName() ) ;
                pdg_charge = pdg_particle->Charge() / (3.) ;
             }
-            printf("   %4d : %3d :  PID %10d  %15s  status = %3d  M1 %3d M2 %3d  D1 %3d D2 %3d   Pt %15.6f  Pz %15.6f  Phi %9.5f ", ei, pi,
+            printf("   %4d : %3d :  PID %10d  %15s  status = %3d  M1 %3d M2 %3d  D1 %3d D2 %3d   Pt %15.6f  Pz %15.6f  Eta %9.5f  Phi %9.5f ", ei, pi,
             Particle_PID[pi], pdg_name, Particle_Status[pi],
             Particle_M1[pi],
             Particle_M2[pi],
@@ -347,6 +348,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
             Particle_D2[pi],
             escale * Particle_PT[pi],
             escale * Particle_Pz[pi],
+            Particle_Eta[pi],
             Particle_Phi[pi]
             ) ;
             if ( Particle_PID[pi] == 22 ) {
@@ -541,8 +543,19 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
             gen_hfs_E_no_rad_eta_lt_4  += escale * Particle_E[pi] ;
          }
 
-         if ( verbose ) { printf("  HFS : %3d :  E = %9.4f , pz = %9.3f , px = %9.3f , py = %9.3f\n", pi,
-           escale * Particle_E[pi], escale * Particle_Pz[pi], escale * Particle_Px[pi], escale * Particle_Py[pi] ) ; }
+         if ( verbose ) {
+            TParticlePDG* pdg_particle = pdg -> GetParticle( Particle_PID[pi] ) ;
+            char pdg_name[100];
+            if ( pdg_particle != 0x0 ) {
+               sprintf( pdg_name, "%s", pdg_particle->GetName() ) ;
+            }
+            char eta_tag[10] ;
+            sprintf( eta_tag, " " ) ;
+            if ( fabs( Particle_Eta[pi] ) > 4. ) sprintf( eta_tag, "*" ) ;
+            printf("  HFS : %3d :  %15s   E = %9.4f , pz = %9.3f , px = %9.3f , py = %9.3f , eta = %9.5f %s  E-pz %9.5f\n", pi, pdg_name,
+              escale * Particle_E[pi], escale * Particle_Pz[pi], escale * Particle_Px[pi], escale * Particle_Py[pi], Particle_Eta[pi], eta_tag, 
+              escale * Particle_E[pi] - escale * Particle_Pz[pi] ) ;
+         }
 
       } // pi
 
@@ -997,6 +1010,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
       float mcmatch_sum_px(0.) ;
       float mcmatch_sum_py(0.) ;
       float mcmatch_sum_pz(0.) ;
+      float mcmatch_sum_E(0.) ;
 
       obs_fsr_photon_recombined = false ;
 
@@ -1009,7 +1023,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
       for ( int i = 0; i < EFlowTrack_; i++ ) {
 
-         if ( EFlowTrack_PID[i] != 11 ) continue ;
+         if ( abs(EFlowTrack_PID[i]) != 11 ) continue ;
 
          float dr = calc_dr( sef_phi, EFlowTrack_Phi[i], sef_eta, EFlowTrack_Eta[i] ) ;
 
@@ -1078,9 +1092,15 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          if ( e < 0 ) continue ;
 
+         if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
 
-         if ( verbose ) printf( " %3d, trk %3d : pid = %5d  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
-           ei, i, EFlowTrack_PID[i], EFlowTrack_PT[i], px, py, pz, e, EFlowTrack_Eta[i], EFlowTrack_Phi[i] ) ;
+         HFS_px += px ;
+         HFS_py += py ;
+         HFS_pz += pz ;
+         HFS_E  += e  ;
+
+         if ( verbose ) printf( " %3d, trk %3d : pid = %5d  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f,  E-pz  %9.5f   sum E-pz  %9.5f\n",
+           ei, i, EFlowTrack_PID[i], EFlowTrack_PT[i], px, py, pz, e, EFlowTrack_Eta[i], EFlowTrack_Phi[i], e-pz, HFS_E-HFS_pz ) ;
 
          if ( verbose ) {
             double min_mc_dr = 99999. ;
@@ -1095,25 +1115,21 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
                }
             } // pi
             if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
-               printf( " %3d, trk %3d :                  MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
-                  ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
                mcmatch_sum_px += Particle_Px[mc_pi] ;
                mcmatch_sum_py += Particle_Py[mc_pi] ;
                mcmatch_sum_pz += Particle_Pz[mc_pi] ;
+               mcmatch_sum_E += Particle_E[mc_pi] ;
+               printf( " %3d, trk %3d :                  MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f,  E-pz  %9.5f   sum E-pz  %9.5f mc\n",
+                  ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi], Particle_E[mc_pi]-Particle_Pz[mc_pi],
+                  mcmatch_sum_E-mcmatch_sum_pz) ;
             }
          }
 
-         if ( fabs(EFlowTrack_Eta[i]) > maxEta ) continue ;
 
-
-         HFS_px += px ;
-         HFS_py += py ;
-         HFS_pz += pz ;
-         HFS_E  += e  ;
 
       } // i
 
-      if ( verbose ) printf( "  --- after tracks:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f\n", HFS_px, HFS_py, HFS_pz, HFS_E ) ;
+      if ( verbose ) printf( "  --- after tracks:  HFS :  px,py,pz = %7.2f , %7.2f, %7.2f   E = %7.2f  E-pz = %9.5f\n", HFS_px, HFS_py, HFS_pz, HFS_E, HFS_E-HFS_pz ) ;
 
 
 
@@ -1137,8 +1153,20 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          if ( e < 0 ) continue ;
 
-         if ( verbose ) printf( " %3d, pho %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f\n",
-           ei, i, EFlowPhoton_ET[i], px, py, pz, e, EFlowPhoton_Eta[i], EFlowPhoton_Phi[i] ) ;
+         if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
+
+         float dr_wrt_se = calc_dr( EFlowPhoton_Phi[i], sef_phi , EFlowPhoton_Eta[i], sef_eta  ) ;
+
+         if ( dr_wrt_se < 0.5 ) continue ; //--- reject any photons close to scattered electron for HFS.
+
+         HFS_px += px ;
+         HFS_py += py ;
+         HFS_pz += pz ;
+         HFS_E  += e  ;
+
+
+         if ( verbose ) printf( " %3d, pho %3d :  pt = %7.2f  px,py,pz = %7.2f, %7.2f, %7.2f   E = %7.2f    eta = %8.3f, phi = %8.3f,  E-pz  %9.5f   sum E-pz  %9.5f  dR wrt se %9.5f\n",
+           ei, i, EFlowPhoton_ET[i], px, py, pz, e, EFlowPhoton_Eta[i], EFlowPhoton_Phi[i], e-pz, HFS_E-HFS_pz,  dr_wrt_se ) ;
 
          if ( verbose ) {
             double min_mc_dr = 99999. ;
@@ -1154,21 +1182,15 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
                }
             } // pi
             if ( mc_pi >= 0 && min_mc_dr < 0.05 ) {
-               printf( " %3d, pho %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f\n",
-                  ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi] ) ;
                mcmatch_sum_px += Particle_Px[mc_pi] ;
                mcmatch_sum_py += Particle_Py[mc_pi] ;
                mcmatch_sum_pz += Particle_Pz[mc_pi] ;
+               mcmatch_sum_E += Particle_E[mc_pi] ;
+               printf( " %3d, pho %3d :      MC match  px,py,pz = %7.2f, %7.2f, %7.2f,  dr = %8.4f, eta = %8.3f, phi = %8.3f,  E-pz  %9.5f   sum E-pz  %9.5f mc\n",
+                  ei, i, Particle_Px[mc_pi], Particle_Py[mc_pi], Particle_Pz[mc_pi], min_mc_dr, Particle_Eta[mc_pi], Particle_Phi[mc_pi], Particle_E[mc_pi]-Particle_Pz[mc_pi],
+                  mcmatch_sum_E-mcmatch_sum_pz) ;
             }
          }
-
-         if ( fabs(EFlowPhoton_Eta[i]) > maxEta ) continue ;
-
-
-         HFS_px += px ;
-         HFS_py += py ;
-         HFS_pz += pz ;
-         HFS_E  += e  ;
 
       } // i
 
@@ -1277,6 +1299,18 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
       //                    e_px, e_py, e_pz, obs_e_e ) ;
 
 
+     if ( verbose ) {
+        printf("\n Electron collection\n") ;
+        for ( int i = 0; i < Electron_; i ++ ) {
+           printf("   Electron collection     electron:  pt = %9.4f (%9.4f)   phi = %9.4f (%9.4f)   eta = %9.5f (%9.5f)\n",
+              Electron_PT[i], sef_pt,  Electron_Phi[i], sef_phi,  Electron_Eta[i], sef_eta ) ;
+        } // i
+     }
+
+
+
+
+
      if ( ele_efti < 0 ) {
         if ( verbose ) printf("\n\n *** can't find reco scattered electron track.\n\n") ;
         continue ;
@@ -1310,8 +1344,8 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
      }
 
-     if ( verbose ) printf("\n   reconstructed scattered electron:  pt = %9.4f (%9.4f)   phi = %9.4f (%9.4f)\n\n",
-         obs_e_pt, sef_pt,  obs_e_phi, sef_phi ) ;
+     if ( verbose ) printf("\n   reconstructed scattered electron:  pt = %9.4f (%9.4f)   phi = %9.4f (%9.4f)   eta = %9.5f (%9.5f)\n\n",
+         obs_e_pt, sef_pt,  obs_e_phi, sef_phi, obs_e_eta, sef_eta ) ;
 
 
       obs_dphi = obs_e_phi - obs_hfs_phi ;
@@ -1363,7 +1397,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          obs_Q2[im] = 4. * e0 * e - 4. * e0 * e0 + 2 * e0 * Sigma ;
 
-         obs_x[im] = gen_Q2[im] / ( 2. * ep * Sigma ) ;
+         obs_x[im] = obs_Q2[im] / ( 2. * ep * Sigma ) ;
 
 
 
@@ -1376,7 +1410,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          obs_Q2[im] = 2. * e0 * ( 2. * e0 - Sigma ) / pow( tan(theta/2.), 2. ) ;
 
-         obs_x[im] = gen_Q2[im] / ( 2. * ep * Sigma ) ;
+         obs_x[im] = obs_Q2[im] / ( 2. * ep * Sigma ) ;
 
 
 
@@ -1388,7 +1422,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          obs_Q2[im] = 4. * e0 * e0 * (1./tan(theta/2.)) / ( tan_gamma_over_2 + tan(theta/2.) ) ;
 
-         obs_x[im] = gen_Q2[im] / ( 4. * ep * e0 * gen_y[im] ) ;
+         obs_x[im] = obs_Q2[im] / ( 4. * ep * e0 * obs_y[im] ) ;
 
 
 
@@ -1398,9 +1432,9 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          obs_y[im] = Sigma / ( 2. * e0 ) ;
 
-         obs_Q2[im] = T * T / ( 1. - gen_y[im] ) ;
+         obs_Q2[im] = T * T / ( 1. - obs_y[im] ) ;
 
-         obs_x[im] = gen_Q2[im] / ( 2. * ep * Sigma ) ;
+         obs_x[im] = obs_Q2[im] / ( 2. * ep * Sigma ) ;
 
 
 
@@ -1411,9 +1445,9 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          obs_y[im] = Sigma / ( Sigma + e * ( 1. - cos(theta) ) ) ;
 
-         obs_Q2[im] = e * e * pow( sin(theta), 2 ) / ( 1. - gen_y[im] ) ;
+         obs_Q2[im] = e * e * pow( sin(theta), 2 ) / ( 1. - obs_y[im] ) ;
 
-         obs_x[im] = e * pow( cos(theta/2.), 2 ) / ( ep * gen_y[im] ) ;
+         obs_x[im] = e * pow( cos(theta/2.), 2 ) / ( ep * obs_y[im] ) ;
 
 
 
@@ -1426,7 +1460,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
          //obs_Q2[im] = e * e * tan(theta/2.) * ( tan_gamma_over_2 + tan(theta/2.) ) / ( 1./tan(theta/2.) + tan(theta/2.) ) ; // *** this is wrong somehow
          obs_Q2[im] = 4. * e * e * (1./tan(theta/2.)) * ( tan_gamma_over_2 + tan(theta/2.) ) / pow( (1./tan(theta/2.) + tan(theta/2.)), 2 ) ;
 
-         obs_x[im] = e * pow( cos(theta/2.), 2. ) / ( ep * gen_y[im] ) ;
+         obs_x[im] = e * pow( cos(theta/2.), 2. ) / ( ep * obs_y[im] ) ;
 
 
 
@@ -1437,9 +1471,9 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
 
          obs_y[im] = tan_gamma_over_2 / ( tan_gamma_over_2 + tan(theta/2.) ) ; // yDA
 
-         obs_Q2[im] = pow( Sigma / tan_gamma_over_2, 2 ) / ( 1. - gen_y[im] ) ;
+         obs_Q2[im] = pow( Sigma / tan_gamma_over_2, 2 ) / ( 1. - obs_y[im] ) ;
 
-         obs_x[im] = e * pow( cos(theta/2.), 2. ) / ( ep * gen_y[im] ) ;
+         obs_x[im] = e * pow( cos(theta/2.), 2. ) / ( ep * obs_y[im] ) ;
 
 
 
@@ -1488,6 +1522,16 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
          } // i
          printf("\n") ;
 
+
+         float reso_x_da = obs_x[3] / from_tlv_gen_x ;
+
+         ///if ( !has_isr && !has_fsr && from_tlv_gen_y > 0.01 && from_tlv_gen_y < 0.05 && reso_x_da < 0.5 ) {
+         ///   if (verbose) printf("\n\n  *** %5d :  check this event:  y_true = %9.5f    x/x_true = %9.5f\n\n", ei, from_tlv_gen_y, reso_x_da ) ;
+         ///}
+
+         if ( !has_isr && !has_fsr && from_tlv_gen_y > 0.5 && obs_x[0] / from_tlv_gen_x > 1.1 ) {
+            if (verbose) printf("\n\n  *** %5d :  check this event:  obs_x[0] / from_tlv_gen_x = %9.5f / %9.5f = %9.5f\n\n", ei, obs_x[0], from_tlv_gen_x, obs_x[0] / from_tlv_gen_x ) ;
+         }
 
       }
 
