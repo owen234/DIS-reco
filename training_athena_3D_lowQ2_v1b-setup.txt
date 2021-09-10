@@ -1,0 +1,8 @@
+2021-09-10 12:21:42.239147
+training_name : training_athena_3D_lowQ2_v1b
+input_file : athena-rapgap-delphes/dnn-inputs-q2gt2-0-12m-with-rec.root
+max_events : 1000000000
+learning_rate_setval : 0.0001
+batch_size_setval : 128
+max_epochs : 5000
+dropout_setval : 0
