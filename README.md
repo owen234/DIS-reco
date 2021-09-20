@@ -15,7 +15,7 @@ There are lots of Jupyter Notebooks in here for both training DNNs and also maki
 If you haven't used Jupyter Notebooks before, it's pretty easy to learn.  In a nutshell, you start a server on your machine
 from a terminal that you then connect to with your web browser (I use Safari on a Mac).  You enter code in the web browser.
 When you are ready to run it, you hit shift-enter within that block and that signals the server to run that code and then
-present the results in the browser.  There are a lot of basic tutorials out there that will help you learn the basics of
+present the results in the browser.  There are a lot of tutorials out there that will help you learn the basics of
 Jupyter Notebooks.
 
 If you get errors, it may be that you need to install some more python packages.  I use "pip install" for everything
