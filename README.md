@@ -9,6 +9,23 @@ The stuff in this repository is for looking at the reconstruction of Q2, x, and 
 hadronic final state.
 
 
+## Machine Learning
+
+There are lots of Jupyter Notebooks in here for both training DNNs and also making plots from a completed DNN training.
+If you haven't used Jupyter Notebooks before, it's pretty easy to learn.  In a nutshell, you start a server on your machine
+from a terminal that you then connect to with your web browser (I use Safari on a Mac).  You enter code in the web browser.
+When you are ready to run it, you hit shift-enter within that block and that signals the server to run that code and then
+present the results in the browser.  There are a lot of basic tutorials out there that will help you learn the basics of
+Jupyter Notebooks.
+
+If you get errors, it may be that you need to install some more python packages.  I use "pip install" for everything
+and it works fine.  
+
+If you need the input root files, ask me.
+
+## Fast simulation (Delphes).
+
+
 The section below will get you started with a setup for running the fast simulation (Delphes).  Once you have that, you can
 make a simple reduced TTree with the root c++ code here and then analyze it with the jupyter notebook.  Note that you don't
 have to do all of the below in the EIC virtual machine you use to run the full simulation.  You should be able to install
