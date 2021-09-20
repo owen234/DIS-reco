@@ -1,0 +1,9 @@
+2021-09-19 15:08:50.209423
+training_name : training_athena_classification_v2e
+input_file : athena-rapgap-delphes/dnn-inputs-v3-28m.root
+max_events : 1000000000
+learning_rate_setval_cat : 0.0001
+learning_rate_setval_reg : 1e-05
+batch_size_setval : 128
+max_epochs : 5000
+dropout_setval : 0
