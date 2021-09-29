@@ -29,17 +29,19 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
    float minPhoE = 0.05 ; //--- YR says 50 MeV
    float minNHE = 0.50 ; //--- YR says 500 MeV
 
+   bool obs_recombine_fsr_gamma = false ;
+
    //bool smear_electron_theta = true ;
    bool smear_electron_theta = false ;
 
    bool save_only_dnn_inputs = true ;
    //bool save_only_dnn_inputs = false ;
 
-   bool recombine_fsr_gamma = true ;
-   //bool recombine_fsr_gamma = false ;
+   //bool recombine_fsr_gamma = true ;
+   bool recombine_fsr_gamma = false ; // for v4
 
-   bool include_rad_gamma_in_hfs = true ;
-   //bool include_rad_gamma_in_hfs = false ;
+   //bool include_rad_gamma_in_hfs = true ;
+   bool include_rad_gamma_in_hfs = false ; // for v4
 
    if (fChain == 0) return;
 
@@ -231,12 +233,6 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
       tt_out -> Branch( "se0_pz", &se0_pz, "se0_pz/F" ) ;
       tt_out -> Branch( "se0_phi", &se0_phi, "se0_phi/F" ) ;
 
-      tt_out -> Branch( "sef_e", &sef_e, "sef_e/F" ) ;
-      tt_out -> Branch( "sef_pt", &sef_pt, "sef_pt/F" ) ;
-      tt_out -> Branch( "sef_pz", &sef_pz, "sef_pz/F" ) ;
-      tt_out -> Branch( "sef_phi", &sef_phi, "sef_phi/F" ) ;
-      tt_out -> Branch( "sef_eta", &sef_eta, "sef_eta/F" ) ;
-
       tt_out -> Branch( "gen_e0_Q2", &gen_e0_Q2, "gen_e0_Q2/F" ) ;
       tt_out -> Branch( "gen_e0_y", &gen_e0_y, "gen_e0_y/F" ) ;
       tt_out -> Branch( "gen_e0_x", &gen_e0_x, "gen_e0_x/F" ) ;
@@ -299,6 +295,18 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
       tt_out -> Branch( "pho_dphi_wrt_efinal", &pho_dphi_wrt_efinal ) ;
 
    } // not save only dnn inputs?
+
+   tt_out -> Branch( "sef_e", &sef_e, "sef_e/F" ) ;
+   tt_out -> Branch( "sef_pt", &sef_pt, "sef_pt/F" ) ;
+   tt_out -> Branch( "sef_pz", &sef_pz, "sef_pz/F" ) ;
+   tt_out -> Branch( "sef_phi", &sef_phi, "sef_phi/F" ) ;
+   tt_out -> Branch( "sef_eta", &sef_eta, "sef_eta/F" ) ;
+
+   tt_out -> Branch( "gen_hfs_Sigma_no_rad", &gen_hfs_Sigma_no_rad, "gen_hfs_Sigma_no_rad/F" ) ;
+   tt_out -> Branch( "gen_hfs_T_no_rad", &gen_hfs_T_no_rad, "gen_hfs_T_no_rad/F" ) ;
+   tt_out -> Branch( "gen_hfs_E_no_rad", &gen_hfs_E_no_rad, "gen_hfs_E_no_rad/F" ) ;
+   tt_out -> Branch( "gen_hfs_pz_no_rad", &gen_hfs_pz_no_rad, "gen_hfs_pz_no_rad/F" ) ;
+   tt_out -> Branch( "gen_hfs_phi_no_rad", &gen_hfs_phi_no_rad, "gen_hfs_phi_no_rad/F" ) ;
 
    tt_out -> Branch( "tower_sum_07", &tower_sum_07, "tower_sum_07/F" ) ;
    tt_out -> Branch( "tower_sum_20", &tower_sum_20, "tower_sum_20/F" ) ;
@@ -1420,7 +1428,7 @@ void delphes_rapgap_isr_fsr_analysis::Loop( bool verbose, int maxEvts )
      ptep_to_xyze( obs_e_pt, obs_e_eta, obs_e_phi, 0.000511,
                          obs_e_px, obs_e_py, obs_e_pz, obs_e_e ) ;
 
-     if ( rad_gam_efgi >= 0 ) {
+     if ( rad_gam_efgi >= 0 && obs_recombine_fsr_gamma ) {
 
         float gam_px, gam_py, gam_pz, gam_e ;
         ptep_to_xyze( EFlowPhoton_ET[rad_gam_efgi], EFlowPhoton_Eta[rad_gam_efgi], EFlowPhoton_Phi[rad_gam_efgi], 0.0,
