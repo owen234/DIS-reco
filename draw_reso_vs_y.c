@@ -1,16 +1,22 @@
 
 
 
-void draw_reso_vs_y( const char* var = "x", const char* cuts = "" ) {
+void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* input_root_file = "dnn-output1b.root", const char* experiment = "athena", int can_size_y=800 ) {
 
 
    gSystem -> Exec( "mkdir -p reso-plots" ) ;
 
    gStyle -> SetOptStat(0) ;
    gStyle -> SetPadBottomMargin(0.15) ;
-   gStyle -> SetPadLeftMargin(0.15) ;
+   gStyle -> SetPadLeftMargin(0.18) ;
    gStyle -> SetPadTopMargin(0.10) ;
    gStyle -> SetPadRightMargin(0.05) ;
+
+   if ( can_size_y >= 800 ) {
+      gStyle -> SetTitleOffset( 1.30, "y" ) ;
+   } else {
+      gStyle -> SetTitleOffset( 1.00, "y" ) ;
+   }
 
    TChain ch("dnnout") ;
 
@@ -52,7 +58,7 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "" ) {
 
 
 
-   ch.Add("dnn-output1b.root") ;
+   ch.Add( input_root_file ) ;
 
    int nbins=20 ;
    float xaxis_min = 0.0 ;
@@ -68,8 +74,12 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "" ) {
    char save_fname[1000] ;
 
 
-   TCanvas* can = (TCanvas*) gDirectory -> FindObject("can") ;
-   if ( can == 0x0 ) can = new TCanvas("can","", 50, 50, 900, 600 ) ;
+   //int can_size_y = 800 ;
+
+   //TCanvas* can = (TCanvas*) gDirectory -> FindObject("can") ;
+   //if ( can == 0x0 ) can = new TCanvas("can","", 50, 50, 900, can_size_y ) ;
+
+   TCanvas* can = new TCanvas("can","", 50, 50, 900, can_size_y ) ;
 
 
 
@@ -286,8 +296,10 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "" ) {
 
 
 
-   TCanvas* can_rms = (TCanvas*) gDirectory -> FindObject("can_rms") ;
-   if ( can_rms == 0x0 ) can_rms = new TCanvas("can_rms","", 50, 50, 900, 600 ) ;
+   //TCanvas* can_rms = (TCanvas*) gDirectory -> FindObject("can_rms") ;
+   //if ( can_rms == 0x0 ) can_rms = new TCanvas("can_rms","", 50, 50, 900, can_size_y ) ;
+
+   TCanvas* can_rms = new TCanvas("can_rms","", 50, 50, 900, can_size_y ) ;
 
    can_rms -> cd() ;
 
@@ -317,10 +329,10 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "" ) {
    tl_rms -> Draw() ;
 
 
-   sprintf( save_fname, "reso-plots/athena-rms-%s-vs-y%s.pdf", var, cut_label ) ;
+   sprintf( save_fname, "reso-plots/%s-rms-%s-vs-y%s.pdf", experiment, var, cut_label ) ;
    can_rms -> SaveAs( save_fname ) ;
 
-   sprintf( save_fname, "reso-plots/athena-rms-%s-vs-y%s.png", var, cut_label ) ;
+   sprintf( save_fname, "reso-plots/%s-rms-%s-vs-y%s.png", experiment, var, cut_label ) ;
    can_rms -> SaveAs( save_fname ) ;
 
    can -> Update() ;
@@ -331,8 +343,10 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "" ) {
 
 
 
-   TCanvas* can_mean = (TCanvas*) gDirectory -> FindObject("can_mean") ;
-   if ( can_mean == 0x0 ) can_mean = new TCanvas("can_mean","", 950, 50, 900, 600 ) ;
+   //TCanvas* can_mean = (TCanvas*) gDirectory -> FindObject("can_mean") ;
+   //if ( can_mean == 0x0 ) can_mean = new TCanvas("can_mean","", 950, 50, 900, can_size_y ) ;
+
+   TCanvas* can_mean = new TCanvas("can_mean","", 950, 50, 900, can_size_y ) ;
 
    can_mean -> cd() ;
 
@@ -363,10 +377,10 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "" ) {
    tl_mean -> Draw() ;
 
 
-   sprintf( save_fname, "reso-plots/athena-mean-%s-vs-y%s.pdf", var, cut_label ) ;
+   sprintf( save_fname, "reso-plots/%s-mean-%s-vs-y%s.pdf", experiment, var, cut_label ) ;
    can_mean -> SaveAs( save_fname ) ;
 
-   sprintf( save_fname, "reso-plots/athena-mean-%s-vs-y%s.png", var, cut_label ) ;
+   sprintf( save_fname, "reso-plots/%s-mean-%s-vs-y%s.png", experiment, var, cut_label ) ;
    can_mean -> SaveAs( save_fname ) ;
 
    can -> Update() ;
