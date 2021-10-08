@@ -273,8 +273,8 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
    hd_rms -> SetTitleSize( 0.06, "y" ) ;
    hd_rms -> SetLabelSize( 0.05, "x" ) ;
    hd_rms -> SetLabelSize( 0.05, "y" ) ;
-   hd_rms -> SetXTitle( "true y" ) ;
-   sprintf( label, "RMS, %s / %s_{true}", var_text, var_text ) ;
+   hd_rms -> SetXTitle( "Gen y" ) ;
+   sprintf( label, "RMS, %s / %s_{gen}", var_text, var_text ) ;
    hd_rms -> SetYTitle( label ) ;
 
 
@@ -283,8 +283,8 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
    hd_mean -> SetTitleSize( 0.06, "y" ) ;
    hd_mean -> SetLabelSize( 0.05, "x" ) ;
    hd_mean -> SetLabelSize( 0.05, "y" ) ;
-   hd_mean -> SetXTitle( "true y" ) ;
-   sprintf( label, "Mean, %s / %s_{true}", var_text, var_text ) ;
+   hd_mean -> SetXTitle( "Gen y" ) ;
+   sprintf( label, "Mean, %s / %s_{gen}", var_text, var_text ) ;
    hd_mean -> SetYTitle( label ) ;
 
 
