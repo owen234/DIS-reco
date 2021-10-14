@@ -67,25 +67,11 @@ set CommonTrackingEfficiency {
     0.0
 }
 
-#--- nominal
-#set CommonTrackingResolution {
-#    (abs(eta)<=2.0)                 * (sqrt( (1.5e-2)^2 + (pt*cosh(eta)*2e-3)^2  ) )
-#}
-
-#--- trkres4
 set CommonTrackingResolution {
-    (abs(eta)<=2.0)                 * (sqrt( (3.5e-2)^2 + (pt*cosh(eta)*2e-3)^2  ) )
+    (abs(eta)<=1.0)  * (sqrt( (2.0e-2)^2 + (pt*cosh(eta)*5e-3)^2  ) ) +
+    (abs(eta)>1.0 && abs(eta)<2.0)  * (sqrt( (10.0e-2)^2 + (pt*cosh(eta)*1e-2)^2  ) )
 }
 
-##-- make it very bad (10% constant term)
-#set CommonTrackingResolution {
-#    (abs(eta)<=2.0)                 * (sqrt( (0.10)^2 + (pt*cosh(eta)*2e-3)^2  ) )
-#}
-
-#-- make it very bad (20% constant term)
-#set CommonTrackingResolution {
-#    (abs(eta)<=2.0)                 * (sqrt( (0.20)^2 + (pt*cosh(eta)*2e-3)^2  ) )
-#}
 
 module Efficiency ChargedHadronTrackingEfficiency {
   set InputArray ParticlePropagator/chargedHadrons
@@ -231,26 +217,7 @@ module SimpleCalorimeter ECal {
   add EnergyFraction {310} {0.3}
   add EnergyFraction {3122} {0.3}
 
-#-- Nominal
-#  set ResolutionFormula { (eta <= 3.3 && eta>-3.3) * sqrt(energy^2*0.025^2 + energy*0.11^2 )
-#  }
 
-#-- Try worse resolution in high eta regions only
-#  set ResolutionFormula {  (eta <= 2.5 && eta>-2.5 )   * sqrt(energy^2*0.025^2 + energy*0.11^2 )
-#                         + (eta > 2.5 && eta < 3.3 )   * sqrt(energy^2*0.125^2 + energy*0.11^2 )
-#                         + (eta > -3.3 && eta < -2.5 ) * sqrt(energy^2*0.125^2 + energy*0.11^2 )
-#  }
-
-#--- make it very bad (10% constant term)
-#  set ResolutionFormula { (eta <= 3.3 && eta>-3.3) * sqrt(energy^2*0.100^2 + energy*0.11^2 )
-#  }
-
-#--- make it very bad (20% constant term)
-#  set ResolutionFormula { (eta <= 3.3 && eta>-3.3) * sqrt(energy^2*0.200^2 + energy*0.11^2 )
-#  }
-
-
-#-- From NIM 386 (1997) 310-347.
    set ResolutionFormula {
        ( eta> -1.46 && eta < 3.35 )  * sqrt(energy^2*0.025^2 + energy*0.11^2 )
      + ( eta> -3.35 && eta < -1.46 ) * sqrt(energy^2*0.030^2 + energy*0.10^2 )
@@ -328,39 +295,10 @@ module SimpleCalorimeter HCal {
 
   # set HCalResolutionFormula {resolution formula as a function of eta and energy}                         
 
-# #-- nominal
-# set ResolutionFormula {    (eta <= 3.3 && eta>-3.3)   * sqrt(energy^2*0.03^2 + energy*0.50^2)
-# }
-
-# #-- Try making it worse in high eta regions only.
-# set ResolutionFormula {    (eta <= 2.5 && eta>-2.5)   * sqrt(energy^2*0.03^2 + energy*0.50^2) +
-#                            (eta <= 3.3 && eta>2.5)    * sqrt(energy^2*0.13^2 + energy*0.50^2) +
-#                            (eta <= -2.5 && eta>-3.3)  * sqrt(energy^2*0.13^2 + energy*0.50^2)
-# }
-
-# #-- make it very bad (10% constant term)
-# set ResolutionFormula {    (eta <= 3.3 && eta>-3.3)   * sqrt(energy^2*0.10^2 + energy*0.50^2)
-# }
-
-# #-- make it very bad (20% constant term)
-# set ResolutionFormula {    (eta <= 3.3 && eta>-3.3)   * sqrt(energy^2*0.20^2 + energy*0.50^2)
-# }
-
-#-- From NIM 386 (1997) 310-347.
-# set ResolutionFormula {
-#      ( eta> -1.46 && eta < 3.35 )  * sqrt(energy^2*0.02^2 + energy*0.50^2)
-# }
-
-#-- Adjustments from cartoon figure to give more realistic coverage
-# set ResolutionFormula {
-#      ( eta> -0.76 && eta < 3.35 )  * sqrt(energy^2*0.02^2 + energy*0.50^2)
-# }
-
-#-- Make resolution worse near edges
   set ResolutionFormula {
        ( eta> -0.64 && eta <  3.20 )  * sqrt(energy^2*0.20^2 + energy*0.50^2)
      + ( eta>  3.20 && eta <  3.35 )  * sqrt(energy^2*0.40^2 + energy*0.90^2)
-     + ( eta> -1.49 && eta < -0.64 )  * sqrt(energy^2*0.40^2 + energy*0.90^2)
+     + ( eta> -0.97 && eta < -0.64 )  * sqrt(energy^2*0.40^2 + energy*0.90^2)
   }
 }
 
