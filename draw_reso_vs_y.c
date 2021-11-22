@@ -1,21 +1,33 @@
 
 
 
-void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* input_root_file = "dnn-output1b.root", const char* experiment = "athena", int can_size_y=800 ) {
+void draw_reso_vs_y( const char* var = "x", const char* cuts = "has_norad", const char* input_root_file = "plots-v6a/dnn-output.root", const char* experiment = "athena", int can_size_y=600 ) {
+//void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* input_root_file = "plots-v6a/dnn-output.root", const char* experiment = "athena", int can_size_y=800 ) {
 
+
+   int max_events = 1e9 ;
+   //int max_events = 1e5 ;
 
    gSystem -> Exec( "mkdir -p reso-plots" ) ;
 
    gStyle -> SetOptStat(0) ;
-   gStyle -> SetPadBottomMargin(0.15) ;
    gStyle -> SetPadLeftMargin(0.18) ;
    gStyle -> SetPadTopMargin(0.10) ;
    gStyle -> SetPadRightMargin(0.05) ;
 
    if ( can_size_y >= 800 ) {
-      gStyle -> SetTitleOffset( 1.30, "y" ) ;
+      /////////////////////////gStyle -> SetTitleOffset( 1.30, "y" ) ;
+      gStyle -> SetPadBottomMargin(0.15) ;
+      gStyle -> SetTitleOffset( 1.05, "y" ) ;
+         gStyle -> SetLabelOffset( 0.015, "y" ) ;
+         gStyle -> SetLabelOffset( 0.015, "x" ) ;
    } else {
-      gStyle -> SetTitleOffset( 1.00, "y" ) ;
+      /////////////////////////gStyle -> SetTitleOffset( 1.00, "y" ) ;
+      gStyle -> SetPadBottomMargin(0.17) ;
+      gStyle -> SetTitleOffset( 0.90, "y" ) ;
+      gStyle -> SetTitleOffset( 0.90, "x" ) ;
+         gStyle -> SetLabelOffset( 0.015, "y" ) ;
+         gStyle -> SetLabelOffset( 0.015, "x" ) ;
    }
 
    TChain ch("dnnout") ;
@@ -28,7 +40,12 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
    }
 
    TText* tt_title = new TText() ;
-   tt_title -> SetTextSize( 0.06 ) ;
+   ////////////////////tt_title -> SetTextSize( 0.06 ) ;
+   if ( can_size_y >= 800 ) {
+      tt_title -> SetTextSize( 0.07 ) ;
+   } else {
+      tt_title -> SetTextSize( 0.08 ) ;
+   }
 
 
 
@@ -60,9 +77,12 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
 
    ch.Add( input_root_file ) ;
 
-   int nbins=20 ;
+   ////////int nbins=20 ;
+   int nbins=25 ;
+
    float xaxis_min = 0.0 ;
    float xaxis_max = 0.8 ;
+   //////float xaxis_max = 1.0 ;
    float yaxis_min = 0. ;
    float yaxis_max = 2.0 ;
 
@@ -90,7 +110,7 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
 
    sprintf( arg1, "dnn_%s/true_%s:true_y>>%s", var, var, hname ) ;
 
-   ch.Draw( arg1, cuts ) ;
+   ch.Draw( arg1, cuts, "", max_events ) ;
 
 
 
@@ -103,7 +123,7 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
 
    sprintf( arg1, "rec_%s_e/true_%s:true_y>>%s", var, var, hname ) ;
 
-   ch.Draw( arg1, cuts ) ;
+   ch.Draw( arg1, cuts, "", max_events ) ;
 
 
 
@@ -115,7 +135,7 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
 
    sprintf( arg1, "rec_%s_da/true_%s:true_y>>%s", var, var, hname ) ;
 
-   ch.Draw( arg1, cuts ) ;
+   ch.Draw( arg1, cuts, "", max_events ) ;
 
 
 
@@ -128,7 +148,7 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
 
    sprintf( arg1, "rec_%s_h/true_%s:true_y>>%s", var, var, hname ) ;
 
-   ch.Draw( arg1, cuts ) ;
+   ch.Draw( arg1, cuts, "", max_events ) ;
 
 
 
@@ -139,7 +159,7 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
 
    sprintf( arg1, "rec_%s_is/true_%s:true_y>>%s", var, var, hname ) ;
 
-   ch.Draw( arg1, cuts ) ;
+   ch.Draw( arg1, cuts, "", max_events ) ;
 
 
 
@@ -269,20 +289,69 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
 
 
    TH2F* hd_rms = new TH2F( "hd_rms", "", 100, xaxis_min, xaxis_max, 100, 0., 0.5 ) ;
-   hd_rms -> SetTitleSize( 0.06, "x" ) ;
-   hd_rms -> SetTitleSize( 0.06, "y" ) ;
-   hd_rms -> SetLabelSize( 0.05, "x" ) ;
-   hd_rms -> SetLabelSize( 0.05, "y" ) ;
+
+   ///////////////////////hd_rms -> SetTitleSize( 0.06, "x" ) ;
+   ///////////////////////hd_rms -> SetTitleSize( 0.06, "y" ) ;
+   ///////////////////////hd_rms -> SetLabelSize( 0.05, "x" ) ;
+   ///////////////////////hd_rms -> SetLabelSize( 0.05, "y" ) ;
+
+   if ( can_size_y >= 800 ) {
+
+      hd_rms -> SetTitleSize( 0.07, "x" ) ;
+      hd_rms -> SetTitleSize( 0.07, "y" ) ;
+      hd_rms -> SetLabelSize( 0.06, "x" ) ;
+      hd_rms -> SetLabelSize( 0.06, "y" ) ;
+
+        hd_rms -> SetNdivisions( 805, "x" ) ;
+        hd_rms -> SetNdivisions( 805, "y" ) ;
+
+   } else {
+
+      hd_rms -> SetTitleSize( 0.085, "x" ) ;
+      hd_rms -> SetTitleSize( 0.085, "y" ) ;
+      hd_rms -> SetLabelSize( 0.075, "x" ) ;
+      hd_rms -> SetLabelSize( 0.075, "y" ) ;
+
+        hd_rms -> SetNdivisions( 805, "x" ) ;
+        hd_rms -> SetNdivisions( 805, "y" ) ;
+
+   }
+
+
    hd_rms -> SetXTitle( "Gen y" ) ;
    sprintf( label, "RMS, %s / %s_{gen}", var_text, var_text ) ;
    hd_rms -> SetYTitle( label ) ;
 
 
    TH2F* hd_mean = new TH2F( "hd_mean", "", 100, xaxis_min, xaxis_max, 100, 0.8, 1.2 ) ;
-   hd_mean -> SetTitleSize( 0.06, "x" ) ;
-   hd_mean -> SetTitleSize( 0.06, "y" ) ;
-   hd_mean -> SetLabelSize( 0.05, "x" ) ;
-   hd_mean -> SetLabelSize( 0.05, "y" ) ;
+
+   ///////////////////////hd_mean -> SetTitleSize( 0.06, "x" ) ;
+   ///////////////////////hd_mean -> SetTitleSize( 0.06, "y" ) ;
+   ///////////////////////hd_mean -> SetLabelSize( 0.05, "x" ) ;
+   ///////////////////////hd_mean -> SetLabelSize( 0.05, "y" ) ;
+
+   if ( can_size_y >= 800 ) {
+
+      hd_mean -> SetTitleSize( 0.07, "x" ) ;
+      hd_mean -> SetTitleSize( 0.07, "y" ) ;
+      hd_mean -> SetLabelSize( 0.06, "x" ) ;
+      hd_mean -> SetLabelSize( 0.06, "y" ) ;
+
+        hd_mean -> SetNdivisions( 805, "x" ) ;
+        hd_mean -> SetNdivisions( 805, "y" ) ;
+
+   } else {
+
+      hd_mean -> SetTitleSize( 0.085, "x" ) ;
+      hd_mean -> SetTitleSize( 0.085, "y" ) ;
+      hd_mean -> SetLabelSize( 0.075, "x" ) ;
+      hd_mean -> SetLabelSize( 0.075, "y" ) ;
+
+        hd_mean -> SetNdivisions( 805, "x" ) ;
+        hd_mean -> SetNdivisions( 805, "y" ) ;
+
+   }
+
    hd_mean -> SetXTitle( "Gen y" ) ;
    sprintf( label, "Mean, %s / %s_{gen}", var_text, var_text ) ;
    hd_mean -> SetYTitle( label ) ;
@@ -310,14 +379,25 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
    tg_rms_is->Draw("pl") ;
    tg_rms_dnn->Draw("pl") ;
 
-   gPad -> SetGridy(1) ;
+   /////////////////gPad -> SetGridy(1) ;
 
-   tt_title -> DrawTextNDC( 0.15, 0.93, plot_title ) ;
+   /////////////////tt_title -> DrawTextNDC( 0.15, 0.93, plot_title ) ;
+   tt_title -> DrawTextNDC( 0.15, 0.94, plot_title ) ;
 
    lx = 0.35 ;
    ly = 0.57 ;
-   lw = 0.18 ;
-   lh = 0.30 ;
+   ///////////lw = 0.18 ;
+   lw = 0.22 ;
+
+   if ( can_size_y >= 800 ) {
+      gStyle -> SetLegendTextSize( 0.045 ) ;
+      ly = 0.57 ;
+      lh = 0.30 ;
+   } else {
+      gStyle -> SetLegendTextSize( 0.060 ) ;
+      ly = 0.52 ;
+      lh = 0.35 ;
+   }
 
    TLegend* tl_rms = new TLegend( lx, ly, lx+lw, ly+lh ) ;
 
@@ -357,15 +437,25 @@ void draw_reso_vs_y( const char* var = "x", const char* cuts = "", const char* i
    tg_mean_is->Draw("pl") ;
    tg_mean_dnn->Draw("pl") ;
 
-   gPad -> SetGridy(1) ;
+   /////////////////gPad -> SetGridy(1) ;
 
    tt_title -> DrawTextNDC( 0.15, 0.93, plot_title ) ;
 
-   lx = 0.79 ;
+   ////////lx = 0.79 ;
+   lx = 0.74 ;
    ly = 0.65 ;
-   lw = 0.18 ;
-   lh = 0.30 ;
+   ////////lw = 0.18 ;
+   lw = 0.22 ;
 
+   if ( can_size_y >= 800 ) {
+      gStyle -> SetLegendTextSize( 0.045 ) ;
+      lh = 0.30 ;
+      ly = 0.65 ;
+   } else {
+      gStyle -> SetLegendTextSize( 0.060 ) ;
+      lh = 0.35 ;
+      ly = 0.60 ;
+   }
 
    TLegend* tl_mean = new TLegend( lx, ly, lx+lw, ly+lh ) ;
 
