@@ -18,7 +18,12 @@ void draw_reso_vs_y_two_dnn( const char* var = "x", const char* cuts = "",
    gStyle -> SetPadTopMargin(0.10) ;
    gStyle -> SetPadRightMargin(0.05) ;
 
-   gStyle -> SetTitleOffset( 1.30, "y" ) ;
+      gStyle -> SetPadBottomMargin(0.15) ;
+      gStyle -> SetTitleOffset( 1.05, "y" ) ;
+         gStyle -> SetLabelOffset( 0.015, "y" ) ;
+         gStyle -> SetLabelOffset( 0.015, "x" ) ;
+
+
 
    TChain ch1("dnnout") ;
    TChain ch2("dnnout") ;
@@ -38,7 +43,8 @@ void draw_reso_vs_y_two_dnn( const char* var = "x", const char* cuts = "",
    }
 
    TText* tt_title = new TText() ;
-   tt_title -> SetTextSize( 0.06 ) ;
+   /////////////tt_title -> SetTextSize( 0.06 ) ;
+      tt_title -> SetTextSize( 0.07 ) ;
 
 
 
@@ -305,20 +311,40 @@ void draw_reso_vs_y_two_dnn( const char* var = "x", const char* cuts = "",
 
 
    TH2F* hd_rms = new TH2F( "hd_rms", "", 100, xaxis_min, xaxis_max, 100, 0., 0.5 ) ;
-   hd_rms -> SetTitleSize( 0.06, "x" ) ;
-   hd_rms -> SetTitleSize( 0.06, "y" ) ;
-   hd_rms -> SetLabelSize( 0.05, "x" ) ;
-   hd_rms -> SetLabelSize( 0.05, "y" ) ;
+
+   ///////////////hd_rms -> SetTitleSize( 0.06, "x" ) ;
+   ///////////////hd_rms -> SetTitleSize( 0.06, "y" ) ;
+   ///////////////hd_rms -> SetLabelSize( 0.05, "x" ) ;
+   ///////////////hd_rms -> SetLabelSize( 0.05, "y" ) ;
+
+      hd_rms -> SetTitleSize( 0.07, "x" ) ;
+      hd_rms -> SetTitleSize( 0.07, "y" ) ;
+      hd_rms -> SetLabelSize( 0.06, "x" ) ;
+      hd_rms -> SetLabelSize( 0.06, "y" ) ;
+
+        hd_rms -> SetNdivisions( 805, "x" ) ;
+        hd_rms -> SetNdivisions( 805, "y" ) ;
+
    hd_rms -> SetXTitle( "Gen y" ) ;
    sprintf( label, "RMS, %s / %s_{gen}", var_text, var_text ) ;
    hd_rms -> SetYTitle( label ) ;
 
 
    TH2F* hd_mean = new TH2F( "hd_mean", "", 100, xaxis_min, xaxis_max, 100, 0.8, 1.2 ) ;
-   hd_mean -> SetTitleSize( 0.06, "x" ) ;
-   hd_mean -> SetTitleSize( 0.06, "y" ) ;
-   hd_mean -> SetLabelSize( 0.05, "x" ) ;
-   hd_mean -> SetLabelSize( 0.05, "y" ) ;
+
+   ///////////hd_mean -> SetTitleSize( 0.06, "x" ) ;
+   ///////////hd_mean -> SetTitleSize( 0.06, "y" ) ;
+   ///////////hd_mean -> SetLabelSize( 0.05, "x" ) ;
+   ///////////hd_mean -> SetLabelSize( 0.05, "y" ) ;
+
+      hd_mean -> SetTitleSize( 0.07, "x" ) ;
+      hd_mean -> SetTitleSize( 0.07, "y" ) ;
+      hd_mean -> SetLabelSize( 0.06, "x" ) ;
+      hd_mean -> SetLabelSize( 0.06, "y" ) ;
+
+        hd_mean -> SetNdivisions( 805, "x" ) ;
+        hd_mean -> SetNdivisions( 805, "y" ) ;
+
    hd_mean -> SetXTitle( "Gen y" ) ;
    sprintf( label, "Mean, %s / %s_{gen}", var_text, var_text ) ;
    hd_mean -> SetYTitle( label ) ;
@@ -345,14 +371,16 @@ void draw_reso_vs_y_two_dnn( const char* var = "x", const char* cuts = "",
    tg_rms_dnn2->Draw("pl") ;
    tg_rms_dnn1->Draw("pl") ;
 
-   gPad -> SetGridy(1) ;
+   ////////////////gPad -> SetGridy(1) ;
 
    tt_title -> DrawTextNDC( 0.15, 0.93, plot_title ) ;
 
    lx = 0.35 ;
-   ly = 0.57 ;
-   lw = 0.28 ;
-   lh = 0.30 ;
+   ly = 0.53 ;
+   lw = 0.34 ;
+   lh = 0.35 ;
+
+      gStyle -> SetLegendTextSize( 0.045 ) ;
 
    TLegend* tl_rms = new TLegend( lx, ly, lx+lw, ly+lh ) ;
 
@@ -392,14 +420,14 @@ void draw_reso_vs_y_two_dnn( const char* var = "x", const char* cuts = "",
    tg_mean_dnn2->Draw("pl") ;
    tg_mean_dnn1->Draw("pl") ;
 
-   gPad -> SetGridy(1) ;
+   ////////////////gPad -> SetGridy(1) ;
 
    tt_title -> DrawTextNDC( 0.15, 0.93, plot_title ) ;
 
-   lx = 0.69 ;
-   ly = 0.65 ;
-   lw = 0.28 ;
-   lh = 0.30 ;
+   lx = 0.63 ;
+   ly = 0.60 ;
+   lw = 0.34 ;
+   lh = 0.35 ;
 
 
    TLegend* tl_mean = new TLegend( lx, ly, lx+lw, ly+lh ) ;
